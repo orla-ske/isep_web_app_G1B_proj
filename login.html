@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetStride Login - Beautiful & Modern</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Animated Background -->
+        <div class="background"></div>
+
+        <!-- Decorative Paw Prints -->
+        <div class="paw-container">
+            <div class="paw" style="left: 10%; top: 15%;">🐾</div>
+            <div class="paw" style="left: 75%; top: 25%; animation-delay: 2.5s;">🐾</div>
+            <div class="paw" style="left: 85%; top: 65%; font-size: 80px; animation-delay: 5s;">🐾</div>
+            <div class="paw" style="left: 20%; top: 70%; animation-delay: 7.5s;">🐾</div>
+            <div class="paw" style="left: 50%; top: 10%; font-size: 100px; animation-delay: 10s;">🐾</div>
+            <div class="paw" style="left: 30%; top: 85%; animation-delay: 12.5s;">🐾</div>
+            <div class="paw" style="left: 65%; top: 80%; font-size: 70px; animation-delay: 15s;">🐾</div>
+            <div class="paw" style="left: 5%; top: 45%; animation-delay: 17.5s;">🐾</div>
+        </div>
+
+        <!-- Floating Hearts -->
+        <div class="heart heart-1">❤️</div>
+        <div class="heart heart-2">❤️</div>
+        <div class="heart heart-3">❤️</div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="card">
+                <!-- Logo -->
+                <div class="logo-container">
+                    <div class="logo-wrapper">
+                        <div class="logo-glow"></div>
+                        <!-- Replace this with your actual logo image -->
+                        <img src="petstride-logo.png " 
+ 
+                             alt="PetStride Logo" 
+                             class="logo">
+                    </div>
+                </div>
+
+                <!-- Welcome Text -->
+                <div class="welcome">
+                    <h1 id="welcome-title">Welcome Back!</h1>
+                    <p id="welcome-subtitle">Sign in to connect with loving pet caregivers</p>
+                </div>
+
+                <!-- Form -->
+                <form class="form" id="auth-form">
+                    <div class="form-group hidden" id="name-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Full Name
+                        </label>
+                        <input type="text" class="input" placeholder="Enter your full name" id="name-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Email Address
+                        </label>
+                        <input type="email" class="input" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Password
+                        </label>
+                        <div class="password-wrapper">
+                            <input type="password" class="input" id="password-input" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eye-icon">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="confirm-password-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Confirm Password
+                        </label>
+                        <input type="password" class="input" placeholder="Confirm your password" id="confirm-password-input">
+                    </div>
+
+                    <div class="forgot-password" id="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submit-btn">Sign In</button>
+                </form>
+
+                <!-- Toggle -->
+                <div class="toggle">
+                    <span id="toggle-text">Don't have an account? </span>
+                    <button type="button" id="toggle-btn" onclick="toggleMode()">Sign up</button>
+                </div>
+
+    
+
+                <!-- Footer -->
+                <div class="footer">
+                    By continuing, you agree to PetStride's
+                    <a href="#">Terms of Service</a> and
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - PetStride</title>
+    <meta name="description" content="Find answers to common questions about PetStride - connecting pet owners with trusted caregivers">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="container">
+        <div class="background"></div>
+        
+        <!-- Decorative Elements -->
+        <div class="paw-container">
+            <div class="paw paw-1">🐾</div>
+            <div class="paw paw-2">🐾</div>
+            <div class="paw paw-3">🐾</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="index.html" class="logo-link">
+                    <img src="petstride-logo.png" alt="PetStride" class="nav-logo">
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="faq.html" class="nav-link active">FAQ</a>
+                    <a href="contact.html" class="nav-link">Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero">
+                <h1 class="hero-title">Frequently Asked Questions</h1>
+                <p class="hero-subtitle">Find answers to common questions about PetStride</p>
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="faq-container">
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(0)">
+                            <span class="accordion-question">What is PetStride?</span>
+                            <span class="accordion-icon" id="icon-0">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-0">
+                            <p>PetStride is a platform that connects pet owners with trusted caregivers in their area. Whether you need a dog walker, pet sitter, or someone to care for your furry friend while you're away, we make it easy to find the perfect match.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(1)">
+                            <span class="accordion-question">How do I book a caregiver?</span>
+                            <span class="accordion-icon" id="icon-1">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-1">
+                            <p>Simply create an account, browse available caregivers in your area, check their profiles and reviews, and send a booking request. Once the caregiver accepts, you'll receive confirmation and can coordinate the details.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(2)">
+                            <span class="accordion-question">Are all caregivers verified?</span>
+                            <span class="accordion-icon" id="icon-2">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-2">
+                            <p>Yes, all caregivers on PetStride go through a verification process including background checks and reference verification. We prioritize the safety and well-being of your pets.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(3)">
+                            <span class="accordion-question">What services do caregivers offer?</span>
+                            <span class="accordion-icon" id="icon-3">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-3">
+                            <p>Our caregivers offer various services including dog walking, pet sitting, overnight care, drop-in visits, pet grooming, and training sessions. Each caregiver specifies their available services on their profile.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(4)">
+                            <span class="accordion-question">How is pricing determined?</span>
+                            <span class="accordion-icon" id="icon-4">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-4">
+                            <p>Caregivers set their own rates based on their experience, services offered, and market rates in their area. You can view pricing on each caregiver's profile before booking.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(5)">
+                            <span class="accordion-question">What if I need to cancel a booking?</span>
+                            <span class="accordion-icon" id="icon-5">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-5">
+                            <p>We understand plans change. Our cancellation policy allows free cancellation up to 48 hours before the scheduled service. Cancellations within 48 hours may incur a partial fee.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(6)">
+                            <span class="accordion-question">Is my payment information secure?</span>
+                            <span class="accordion-icon" id="icon-6">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-6">
+                            <p>Absolutely. We use industry-standard encryption and secure payment processing. Your payment information is never shared with caregivers and all transactions are handled securely through our platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(7)">
+                            <span class="accordion-question">Can I request the same caregiver for recurring services?</span>
+                            <span class="accordion-icon" id="icon-7">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-7">
+                            <p>Yes! Once you find a caregiver you and your pet love, you can book recurring appointments with them directly through the platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(8)">
+                            <span class="accordion-question">What types of pets do you support?</span>
+                            <span class="accordion-icon" id="icon-8">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-8">
+                            <p>PetStride currently supports dogs, cats, birds, small mammals, reptiles, and fish. Caregivers specify which types of pets they're comfortable caring for on their profiles.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(9)">
+                            <span class="accordion-question">How do I become a caregiver on PetStride?</span>
+                            <span class="accordion-icon" id="icon-9">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-9">
+                            <p>Click on 'Become a Caregiver' in the navigation menu, fill out the application form, complete the verification process, and once approved, you can start accepting bookings!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="cta-card">
+                    <h2 class="cta-title">Still have questions?</h2>
+                    <p class="cta-text">Our support team is here to help. Reach out anytime!</p>
+                    <a href="contact.html" class="cta-button">Contact Us</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#" class="footer-link">Terms of Service</a>
+            <span class="footer-dot">•</span>
+            <a href="#" class="footer-link">Privacy Policy</a>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - PetStride</title>
+    <meta name="description" content="Get in touch with PetStride - we'd love to hear from you">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="container">
+        <div class="background"></div>
+        
+        <!-- Decorative Elements -->
+        <div class="paw-container">
+            <div class="paw paw-1">🐾</div>
+            <div class="paw paw-2">🐾</div>
+            <div class="paw paw-3">🐾</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="index.html" class="logo-link">
+                    <img src="petstride-logo.png" alt="PetStride" class="nav-logo">
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="faq.html" class="nav-link">FAQ</a>
+                    <a href="contact.html" class="nav-link active">Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero">
+                <h1 class="hero-title">Get in Touch</h1>
+                <p class="hero-subtitle">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            </div>
+
+            <!-- Contact Content -->
+            <div class="contact-container">
+                <div class="contact-grid">
+                    <!-- Contact Form -->
+                    <div class="form-card">
+                        <h2 class="form-title">Send us a message</h2>
+                        <form id="contact-form" class="contact-form">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    class="form-input" 
+                                    placeholder="Your name"
+                                    required
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    class="form-input" 
+                                    placeholder="your.email@example.com"
+                                    required
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input 
+                                    type="text" 
+                                    id="subject" 
+                                    name="subject" 
+                                    class="form-input" 
+                                    placeholder="What is this about?"
+                                    required
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea 
+                                    id="message" 
+                                    name="message" 
+                                    class="form-textarea" 
+                                    placeholder="Your message..."
+                                    rows="6"
+                                    required
+                                ></textarea>
+                            </div>
+                            <button type="submit" class="submit-button">
+                                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                                </svg>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="info-section">
+                        <div class="info-card">
+                            <h2 class="info-title">Contact Information</h2>
+                            <div class="info-items">
+                                <div class="info-item">
+                                    <div class="info-icon-wrapper">
+                                        <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="info-label">Email</h3>
+                                        <p class="info-value">support@petstride.com</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon-wrapper">
+                                        <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="info-label">Phone</h3>
+                                        <p class="info-value">+1 (555) 123-4567</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon-wrapper">
+                                        <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="info-label">Address</h3>
+                                        <p class="info-value">
+                                            123 Pet Street<br>
+                                            San Francisco, CA 94102<br>
+                                            United States
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hours-card">
+                            <h3 class="hours-title">Office Hours</h3>
+                            <div class="hours-items">
+                                <div class="hours-item">
+                                    <span class="hours-day">Monday - Friday:</span>
+                                    <span class="hours-time">9:00 AM - 6:00 PM</span>
+                                </div>
+                                <div class="hours-item">
+                                    <span class="hours-day">Saturday:</span>
+                                    <span class="hours-time">10:00 AM - 4:00 PM</span>
+                                </div>
+                                <div class="hours-item">
+                                    <span class="hours-day">Sunday:</span>
+                                    <span class="hours-time">Closed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#" class="footer-link">Terms of Service</a>
+            <span class="footer-dot">•</span>
+            <a href="#" class="footer-link">Privacy Policy</a>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
