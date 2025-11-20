@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - PetStride</title>
+    <meta name="description" content="Find answers to common questions about PetStride - connecting pet owners with trusted caregivers">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="container">
+        <div class="background"></div>
+        
+        <!-- Decorative Elements -->
+        <div class="paw-container">
+            <div class="paw paw-1">🐾</div>
+            <div class="paw paw-2">🐾</div>
+            <div class="paw paw-3">🐾</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="index.html" class="logo-link">
+                    <img src="petstride-logo.png" alt="PetStride" class="nav-logo">
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="faq.html" class="nav-link active">FAQ</a>
+                    <a href="contact.html" class="nav-link">Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero">
+                <h1 class="hero-title">Frequently Asked Questions</h1>
+                <p class="hero-subtitle">Find answers to common questions about PetStride</p>
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="faq-container">
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(0)">
+                            <span class="accordion-question">What is PetStride?</span>
+                            <span class="accordion-icon" id="icon-0">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-0">
+                            <p>PetStride is a platform that connects pet owners with trusted caregivers in their area. Whether you need a dog walker, pet sitter, or someone to care for your furry friend while you're away, we make it easy to find the perfect match.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(1)">
+                            <span class="accordion-question">How do I book a caregiver?</span>
+                            <span class="accordion-icon" id="icon-1">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-1">
+                            <p>Simply create an account, browse available caregivers in your area, check their profiles and reviews, and send a booking request. Once the caregiver accepts, you'll receive confirmation and can coordinate the details.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(2)">
+                            <span class="accordion-question">Are all caregivers verified?</span>
+                            <span class="accordion-icon" id="icon-2">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-2">
+                            <p>Yes, all caregivers on PetStride go through a verification process including background checks and reference verification. We prioritize the safety and well-being of your pets.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(3)">
+                            <span class="accordion-question">What services do caregivers offer?</span>
+                            <span class="accordion-icon" id="icon-3">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-3">
+                            <p>Our caregivers offer various services including dog walking, pet sitting, overnight care, drop-in visits, pet grooming, and training sessions. Each caregiver specifies their available services on their profile.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(4)">
+                            <span class="accordion-question">How is pricing determined?</span>
+                            <span class="accordion-icon" id="icon-4">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-4">
+                            <p>Caregivers set their own rates based on their experience, services offered, and market rates in their area. You can view pricing on each caregiver's profile before booking.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(5)">
+                            <span class="accordion-question">What if I need to cancel a booking?</span>
+                            <span class="accordion-icon" id="icon-5">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-5">
+                            <p>We understand plans change. Our cancellation policy allows free cancellation up to 48 hours before the scheduled service. Cancellations within 48 hours may incur a partial fee.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(6)">
+                            <span class="accordion-question">Is my payment information secure?</span>
+                            <span class="accordion-icon" id="icon-6">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-6">
+                            <p>Absolutely. We use industry-standard encryption and secure payment processing. Your payment information is never shared with caregivers and all transactions are handled securely through our platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(7)">
+                            <span class="accordion-question">Can I request the same caregiver for recurring services?</span>
+                            <span class="accordion-icon" id="icon-7">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-7">
+                            <p>Yes! Once you find a caregiver you and your pet love, you can book recurring appointments with them directly through the platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(8)">
+                            <span class="accordion-question">What types of pets do you support?</span>
+                            <span class="accordion-icon" id="icon-8">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-8">
+                            <p>PetStride currently supports dogs, cats, birds, small mammals, reptiles, and fish. Caregivers specify which types of pets they're comfortable caring for on their profiles.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(9)">
+                            <span class="accordion-question">How do I become a caregiver on PetStride?</span>
+                            <span class="accordion-icon" id="icon-9">▼</span>
+                        </button>
+                        <div class="accordion-content" id="content-9">
+                            <p>Click on 'Become a Caregiver' in the navigation menu, fill out the application form, complete the verification process, and once approved, you can start accepting bookings!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="cta-card">
+                    <h2 class="cta-title">Still have questions?</h2>
+                    <p class="cta-text">Our support team is here to help. Reach out anytime!</p>
+                    <a href="contact.html" class="cta-button">Contact Us</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#" class="footer-link">Terms of Service</a>
+            <span class="footer-dot">•</span>
+            <a href="#" class="footer-link">Privacy Policy</a>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

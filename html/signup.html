@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetStride Signup</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Animated Background -->
+        <div class="background"></div>
+
+        <!-- Decorative Paw Prints -->
+        <div class="paw-container">
+            <div class="paw" style="left: 10%; top: 15%;">🐾</div>
+            <div class="paw" style="left: 75%; top: 25%; animation-delay: 2.5s;">🐾</div>
+            <div class="paw" style="left: 85%; top: 65%; font-size: 80px; animation-delay: 5s;">🐾</div>
+            <div class="paw" style="left: 20%; top: 70%; animation-delay: 7.5s;">🐾</div>
+            <div class="paw" style="left: 50%; top: 10%; font-size: 100px; animation-delay: 10s;">🐾</div>
+            <div class="paw" style="left: 30%; top: 85%; animation-delay: 12.5s;">🐾</div>
+            <div class="paw" style="left: 65%; top: 80%; font-size: 70px; animation-delay: 15s;">🐾</div>
+            <div class="paw" style="left: 5%; top: 45%; animation-delay: 17.5s;">🐾</div>
+        </div>
+
+        <!-- Floating Hearts -->
+        <div class="heart heart-1">❤️</div>
+        <div class="heart heart-2">❤️</div>
+        <div class="heart heart-3">❤️</div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="card">
+                <!-- Logo -->
+                <div class="logo-container">
+                    <div class="logo-wrapper">
+                        <div class="logo-glow"></div>
+                        <img src="petstride-logo.png " alt="PetStride Logo" class="logo">
+                    </div>
+                </div>
+
+                <!-- Welcome Text -->
+                <div class="welcome">
+                    <h1 id="welcome-title">Welcome Back!</h1>
+                    <p id="welcome-subtitle">Sign in to connect with loving pet caregivers</p>
+                </div>
+
+                <!-- Form -->
+                <form class="form" id="auth-form">
+                    <div class="form-group hidden" id="name-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Full Name
+                        </label>
+                        <input type="text" class="input" placeholder="Enter your full name" id="name-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Email Address
+                        </label>
+                        <input type="email" class="input" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Password
+                        </label>
+                        <div class="password-wrapper">
+                            <input type="password" class="input" id="password-input" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eye-icon">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="confirm-password-group">
+                        <label class="label">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Confirm Password
+                        </label>
+                        <input type="password" class="input" placeholder="Confirm your password" id="confirm-password-input">
+                    </div>
+
+                    <div class="forgot-password" id="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submit-btn">Sign In</button>
+                </form>
+
+                <!-- Toggle -->
+                <div class="toggle">
+                    <span id="toggle-text">Don't have an account? </span>
+                    <button type="button" id="toggle-btn" onclick="toggleMode()">Sign up</button>
+                </div>
+
+    
+
+                <!-- Footer -->
+                <div class="footer">
+                    By continuing, you agree to PetStride's
+                    <a href="#">Terms of Service</a> and
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
+
+
+
