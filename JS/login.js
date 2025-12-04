@@ -1,4 +1,3 @@
-
 /* ===========================
    PetStride Login Page JavaScript
    =========================== */
@@ -80,32 +79,118 @@ function togglePassword() {
 /**
  * Handle form submission
  */
-document.getElementById('auth-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form values
-    const email = document.querySelector('input[type="email"]').value;
-    const password = document.getElementById('password-input').value;
-    
-    if (isLogin) {
-        // Login logic would go here
-        console.log('Login attempt:', { email, password });
-        alert('Login functionality would connect to your backend here!\n\nEmail: ' + email);
-    } else {
-        // Signup logic would go here
-        const name = document.getElementById('name-input').value;
-        const confirmPassword = document.getElementById('confirm-password-input').value;
+    // --- 1. EXISTING UI FUNCTIONS (Keep these exactly as they are) ---
+
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
         
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
         }
-        
-        console.log('Signup attempt:', { name, email, password });
-        alert('Signup functionality would connect to your backend here!\n\nName: ' + name + '\nEmail: ' + email);
     }
-});
+
+    function toggleSignupPassword() {
+        const passwordInput = document.getElementById('signup-password');
+        const eyeIcon = document.getElementById('signup-eye-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+
+    function toggleForm() {
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const formTitle = document.getElementById('form-title');
+        const formSubtitle = document.getElementById('form-subtitle');
+        const toggleText = document.getElementById('toggle-text');
+        const toggleBtn = document.getElementById('toggle-btn');
+        
+        if (loginForm.classList.contains('hidden')) {
+            // Show login form
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+            formTitle.textContent = 'Welcome Back!';
+            formSubtitle.textContent = 'Sign in to continue to PetStride';
+            toggleText.textContent = "Don't have an account? ";
+            toggleBtn.textContent = 'Sign up';
+        } else {
+            // Show signup form
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            formTitle.textContent = 'Create Account';
+            formSubtitle.textContent = 'Join the PetStride community';
+            toggleText.textContent = 'Already have an account? ';
+            toggleBtn.textContent = 'Sign in';
+        }
+    }
+
+    // --- 2. NEW BACKEND LOGIC (This replaces the old alerts) ---
+
+    // A reusable function to handle sending data to login.php
+    async function submitAuthForm(event, formId, actionType) {
+        event.preventDefault(); // Stop the page from reloading
+
+        const form = document.getElementById(formId);
+        const submitBtn = form.querySelector('.submit-btn');
+        const originalText = submitBtn.innerText;
+
+        // 1. Show loading state
+        submitBtn.innerText = 'Processing...';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+
+        // 2. Gather data
+        const formData = new FormData(form);
+        // Manually add the action type (login or signup) so PHP knows what to do
+        formData.append('action', actionType);
+
+        try {
+            // 3. Send to PHP
+            const response = await fetch('login.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            // 4. Handle Response
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                // Success - Redirect
+                window.location.href = 'index.html'; // Change to dashboard.php later
+            } else {
+                // Error - Show alert
+                alert(result.message);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong connecting to the server.');
+        } finally {
+            // 5. Reset button
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    }
+
+    // Attach the new logic to the forms
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        submitAuthForm(e, 'login-form', 'login');
+    });
+
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+        submitAuthForm(e, 'signup-form', 'signup');
+    });
 
 /**
  * Add smooth scroll behavior

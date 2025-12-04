@@ -427,7 +427,6 @@
                     <a href="faq.html" class="nav-link">FAQ</a>
                     <a href="forum.html" class="nav-link">Forum</a>
                     <a href="contact.html" class="nav-link">Contact</a>
-                    <a href="about_us.html" class="nav-link">About us</a>
                 </div>
             </div>
         </nav>
@@ -452,7 +451,7 @@
                 </div>
 
                 <!-- Login Form -->
-                <form id="login-form" class="form">
+                <form id="login-form" class="form" method="POST">
                     <div class="form-group">
                         <label class="label">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -461,7 +460,7 @@
                             </svg>
                             Email
                         </label>
-                        <input type="email" class="input" placeholder="your.email@example.com" required>
+                        <input type="email" name="email" class="input" placeholder="your.email@example.com" required>
                     </div>
 
                     <div class="form-group">
@@ -473,7 +472,7 @@
                             Password
                         </label>
                         <div class="password-wrapper">
-                            <input type="password" id="password" class="input" placeholder="••••••••" required>
+                            <input type="password" id="password" name="password" class="input" placeholder="••••••••" required>
                             <button type="button" class="password-toggle" onclick="togglePassword()">
                                 <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -487,59 +486,13 @@
                         <a href="#" onclick="alert('Password recovery coming soon!'); return false;">Forgot password?</a>
                     </div>
 
-                    <button type="submit" class="submit-btn">Sign In</button>
-                </form>
-
-                <!-- Signup Form (Hidden) -->
-                <form id="signup-form" class="form hidden">
-                    <div class="form-group">
-                        <label class="label">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            Full Name
-                        </label>
-                        <input type="text" class="input" placeholder="John Doe" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="label">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            Email
-                        </label>
-                        <input type="email" class="input" placeholder="your.email@example.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="label">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            Password
-                        </label>
-                        <div class="password-wrapper">
-                            <input type="password" id="signup-password" class="input" placeholder="••••••••" required>
-                            <button type="button" class="password-toggle" onclick="toggleSignupPassword()">
-                                <svg id="signup-eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="submit-btn">Create Account</button>
+                    <button type="submit" id="submit-btn" class="submit-btn">Sign In</button>
                 </form>
 
                 <!-- Toggle -->
                 <div class="toggle">
                     <span id="toggle-text">Don't have an account? </span>
-                    <button type="button" id="toggle-btn" onclick="toggleForm()">Sign up</button>
+                    <button type="button" id="toggle-btn" onclick="window.location.href='signup.html'">Sign up</button>
                 </div>
             </div>
         </div>
@@ -605,17 +558,6 @@
                 toggleBtn.textContent = 'Sign in';
             }
         }
-
-        // Form submission handlers
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Login functionality coming soon!');
-        });
-
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Signup functionality coming soon!');
-        });
     </script>
 </body>
 </html>
