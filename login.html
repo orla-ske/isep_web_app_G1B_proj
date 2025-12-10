@@ -564,7 +564,7 @@
         formData.append('action', actionType);
 
         try {
-            const response = await fetch('/PetStride/services/controller/AuthController.php', {
+            const response = await fetch('/PetStride/controller/AuthController.php', {
                 method: 'POST',
                 body: formData
             });
@@ -577,7 +577,7 @@
 
                 if (result.status === 'success') {
                     // Success - Redirect
-                    window.location.href = result.redirect || 'index.html'; 
+                    window.location.href = result.redirect || '/PetStride/controller/DashboardController.php'; 
                 } else {
                     // Error - Show alert
                     alert(result.message);
