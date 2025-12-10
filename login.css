@@ -28,7 +28,7 @@ body {
 .background {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgb(217, 119, 87, 0.8) 0%, rgb(242, 242, 242, 0.8) 50%, rgb(217, 119, 87, 0.8) 100%);
+    background: linear-gradient(135deg, rgb(242, 242, 242, 0.8) 0%, rgba(113, 154, 252, 0.8) 50%, rgb(242, 242, 242, 0.8) 100%);
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
 }
@@ -165,7 +165,6 @@ body {
 .logo-glow {
     position: absolute;
     inset: -8px;
-    background: linear-gradient(135deg, #4A9FD8, #FDB64E);
     border-radius: 50%;
     filter: blur(20px);
     opacity: 0.3;
@@ -199,7 +198,6 @@ body {
 .welcome h1 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #4A9FD8, #FDB64E);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -296,24 +294,24 @@ body {
 
 /* Submit Button */
 .submit-btn {
-    width: 100%;
-    height: 48px;
-    background: linear-gradient(135deg, #4A9FD8, #5AAFE8);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 0 30px rgba(74, 159, 216, 0.3);
-}
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #4365ff, #002fff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
 
-.submit-btn:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-    box-shadow: 0 0 40px rgba(74, 159, 216, 0.5);
-}
+        .submit-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
+        }
 
 /* ===========================
    Toggle Section
@@ -430,7 +428,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgb(217, 119, 87, 0.8) 0%, rgb(242, 242, 242, 0.8) 50%, rgb(217, 119, 87, 0.8) 100%);
+    background:linear-gradient(135deg, rgb(242, 242, 242, 0.8) 0%, rgba(113, 154, 252, 0.8) 50%, rgb(242, 242, 242, 0.8) 100%);
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
     z-index: -1;
@@ -735,7 +733,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgb(217, 119, 87, 0.8) 0%, rgb(242, 242, 242, 0.8) 50%, rgb(217, 119, 87, 0.8) 100%);
+    background: linear-gradient(135deg, rgb(242, 242, 242, 0.8) 0%, rgba(113, 154, 252, 0.8) 50%, rgb(242, 242, 242, 0.8) 100%);
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
     z-index: -1;

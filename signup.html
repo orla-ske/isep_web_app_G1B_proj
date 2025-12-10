@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PetStride Signup</title>
-    <link rel="stylesheet" href="../Style/login.css">
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
     <div class="container">
@@ -23,24 +23,6 @@
             <div class="paw" style="left: 65%; top: 80%; font-size: 70px; animation-delay: 15s;">🐾</div>
             <div class="paw" style="left: 5%; top: 45%; animation-delay: 17.5s;">🐾</div>
         </div>
-
-        <!-- Navigation -->
-        <nav class="nav">
-            <div class="nav-content">
-                <a href="landingPage.html" class="logo-link">
-                    <img src="../img/petstride-logo.png" alt="PetStride" class="nav-logo">
-                </a>
-                <div class="nav-links">
-                    <a href="landingPage.html" class="nav-link">Home</a>
-                    <a href="about_us.html" class="nav-link">About Us</a>
-                    <a href="FAQ.html" class="nav-link">FAQ</a>
-                    <a href="forum.html" class="nav-link">Forum</a>
-                    <a href="contactUs.html" class="nav-link">Contact</a>
-                    <a href="pet_profile.html" class="nav-link">My Pet</a>
-                    <a href="login.html" class="nav-btn">Login</a>
-                </div>
-            </div>
-        </nav>
 
         <!-- Floating Hearts -->
         <div class="heart heart-1">❤️</div>
@@ -78,7 +60,7 @@
                 </div>
 
                 <!-- Form -->
-                <form class="form" id="auth-form">
+                <form class="form" id="auth-form" method="POST">
                     <div class="form-group hidden" id="name-group">
                         <label class="label">
                             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +141,7 @@
         </div>
     </div>
 
-    <script src="../JS/login.js"></script>
+    <script src="login.js"></script>
 </body>
 </html>
 

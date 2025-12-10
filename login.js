@@ -166,7 +166,7 @@ function togglePassword() {
 
             if (result.status === 'success') {
                 // Success - Redirect
-                window.location.href = 'index.html'; // Change to dashboard.php later
+                window.location.href = 'dashboard.php'; // Change to dashboard.php later
             } else {
                 // Error - Show alert
                 alert(result.message);
