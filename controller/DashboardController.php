@@ -1,7 +1,7 @@
 <?php
 require_once '../model/users.php';
 require_once '../model/jobs.php';
-require_once '../model/pets.php';
+require_once '../model/pet.php';
 
 // Handle AJAX requests first
 if (isset($_GET['action']) && $_GET['action'] === 'start_job') {
@@ -59,7 +59,8 @@ if ($role === 'caregiver') {
     
 } else {
     // Pet owner dashboard data
-    $pets = getUserPets($current_user_id);
+    $petModel = new Pet($pdo);
+    $pets = $petModel->getUserPets($current_user_id);
     $stats['total_pets'] = count($pets);
     $listItems = getOwnerJobs($current_user_id);
 }
