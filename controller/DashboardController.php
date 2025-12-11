@@ -1,7 +1,7 @@
 <?php
 require_once '../model/users.php';
 require_once '../model/jobs.php';
-require_once '../model/pet.php';
+require_once '../model/pets.php';
 
 // Handle AJAX requests first
 if (isset($_GET['action']) && $_GET['action'] === 'start_job') {
@@ -28,7 +28,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ../login.html');
     exit;
 }
 
@@ -56,13 +56,20 @@ if ($role === 'caregiver') {
     $stats['earnings'] = getCaregiverEarnings($current_user_id);
     $listItems = getCaregiverUpcomingJobs($current_user_id);
     $stats['pending_jobs'] = count($listItems);
-    
+    // For caregivers
+    $stats['avg_rating'] = getAverageRating($current_user_id);
+    $stats['total_reviews'] = getTotalReviews($current_user_id);
+
+
 } else {
     // Pet owner dashboard data
-    $petModel = new Pet($pdo);
-    $pets = $petModel->getUserPets($current_user_id);
+    $pets = getUserPets($current_user_id);
     $stats['total_pets'] = count($pets);
     $listItems = getOwnerJobs($current_user_id);
+    // For pet owners
+    $stats['total_spent'] = getTotalSpent($current_user_id);
+    $stats['completed_jobs'] = getCompletedJobsCount($current_user_id);
+    
 }
 
 // Load the view
