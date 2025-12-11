@@ -76,4 +76,27 @@ function addPet($user_id, $name, $breed, $age, $photo_url = null) {
     
     return $stmt->execute();
 }
+
+function insertPet($data) {
+    global $pdo;
+    
+    $query = "INSERT INTO Pet 
+              (owner_id, name, breed, age, gender, weight, height, color, vaccintation_status, photo_url, is_active) 
+              VALUES (:owner_id, :name, :breed, :age, :gender, :weight, :height, :color, :vaccintation_status, :photo_url, :is_active)";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':owner_id', $data['owner_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':name', $data['name']);
+    $stmt->bindParam(':breed', $data['breed']);
+    $stmt->bindParam(':age', $data['age'], PDO::PARAM_INT);
+    $stmt->bindParam(':gender', $data['gender']);
+    $stmt->bindParam(':weight', $data['weight']);
+    $stmt->bindParam(':height', $data['height']);
+    $stmt->bindParam(':color', $data['color']);
+    $stmt->bindParam(':vaccintation_status', $data['vaccintation_status']);
+    $stmt->bindParam(':photo_url', $data['photo_url']);
+    $stmt->bindParam(':is_active', $data['is_active']);
+    
+    return $stmt->execute();
+}
 ?>

@@ -321,7 +321,7 @@
                     <p style="color: #94A3B8;">No pets added yet.</p>
                 <?php endif; ?>
                 <div style="margin-top: 20px; text-align: center;">
-                    <button class="submit-btn" onclick="window.location.href='add-pet.php'">+ Add New Pet</button>
+                    <button class="submit-btn" onclick="window.location.href='../controller/AddPetController.php'">+ Add New Pet</button>
                 </div>
             </div>
 
