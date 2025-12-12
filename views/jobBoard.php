@@ -200,6 +200,19 @@
             </div>
 
             <div class="jobs-container">
+                <!-- Caregiver Search -->
+                <?php if ($user_type === 'caregiver'): ?>
+                    <div style="margin-bottom: 30px;">
+                        <form method="GET" action="" style="display: flex; gap: 10px;">
+                            <input type="text" name="search" placeholder="Search jobs by location, service, or breed..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>" style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #E2E8F0; font-size: 16px;">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <?php if(isset($_GET['search'])): ?>
+                                <a href="JobController.php" class="btn btn-secondary">Clear</a>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Pet Owner: Create Job Form -->
                 <?php if ($user_type === 'pet_owner'): ?>
                     <button onclick="toggleJobForm()" class="btn btn-primary toggle-form-btn" id="toggleBtn">+ Create New Job</button>
