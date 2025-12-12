@@ -208,6 +208,7 @@
                     <a href="../faq.html" class="nav-link">FAQ</a>
                     <a href="../forum.html" class="nav-link">Forum</a>
                     <a href="../contactUs.html" class="nav-link">Contact</a>
+                    <a href="../controller/UserProfileController.php" class="nav-link">Settings</a>
                 </div>
             </div>
         </nav>

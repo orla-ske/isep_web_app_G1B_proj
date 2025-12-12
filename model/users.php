@@ -94,4 +94,54 @@
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    function updateUserProfile($id, $data) {
+    global $pdo;
+    
+    $query = "UPDATE users 
+              SET first_name = :first_name, 
+                  last_name = :last_name, 
+                  email = :email, 
+                  phone = :phone, 
+                  city = :city, 
+                  postal_code = :postal_code, 
+                  address = :address
+              WHERE id = :id";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':first_name', $data['first_name']);
+    $stmt->bindParam(':last_name', $data['last_name']);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':phone', $data['phone']);
+    $stmt->bindParam(':city', $data['city']);
+    $stmt->bindParam(':postal_code', $data['postal_code']);
+    $stmt->bindParam(':address', $data['address']);
+    
+    return $stmt->execute();
+}
+
+function updateUserPassword($id, $new_password) {
+    global $pdo;
+    
+    $hashed_password = hashPassword($new_password);
+    
+    $query = "UPDATE users SET password = :password WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':password', $hashed_password);
+    
+    return $stmt->execute();
+}
+
+function updateProfilePicture($id, $profile_picture_url) {
+    global $pdo;
+    
+    $query = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':profile_picture', $profile_picture_url);
+    
+    return $stmt->execute();
+}
 ?>

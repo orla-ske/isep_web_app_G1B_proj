@@ -81,8 +81,8 @@ function insertPet($data) {
     global $pdo;
     
     $query = "INSERT INTO Pet 
-              (owner_id, name, breed, age, gender, weight, height, color, vaccintation_status, photo_url, is_active) 
-              VALUES (:owner_id, :name, :breed, :age, :gender, :weight, :height, :color, :vaccintation_status, :photo_url, :is_active)";
+              (owner_id, name, breed, age, gender, weight, height, color, vaccintation_status, photo_url, is_active, Users_id) 
+              VALUES (:owner_id, :name, :breed, :age, :gender, :weight, :height, :color, :vaccintation_status, :photo_url, :is_active, :Users_id)";
     
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':owner_id', $data['owner_id'], PDO::PARAM_INT);
@@ -96,6 +96,7 @@ function insertPet($data) {
     $stmt->bindParam(':vaccintation_status', $data['vaccintation_status']);
     $stmt->bindParam(':photo_url', $data['photo_url']);
     $stmt->bindParam(':is_active', $data['is_active']);
+    $stmt->bindParam(':Users_id', $data['owner_id'], PDO::PARAM_INT);
     
     return $stmt->execute();
 }
