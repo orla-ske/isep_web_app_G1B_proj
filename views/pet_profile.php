@@ -55,7 +55,7 @@ $initial = strtoupper(substr($ownerName, 0, 1));
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgb(217, 119, 87, 0.8) 50%, rgb(242, 242, 242, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(242, 242, 242, 0.8) 0%, rgba(113, 154, 252, 0.8) 50%, rgba(242, 242, 242, 0.8) 100%);
             background-size: 400% 400%;
             animation: gradient-shift 15s ease infinite;
             z-index: -1;

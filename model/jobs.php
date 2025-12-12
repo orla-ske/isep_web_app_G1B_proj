@@ -98,19 +98,20 @@ function getOpenJobs($exclude_caregiver_id) {
               j.service_type,
               j.start_time,
               j.price,
+              j.location as address,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
               p.name as pet_name, 
-              p.breed
+              p.breed,
+              p.age as age
               FROM Job j 
               JOIN users u ON j.user_id = u.id 
               JOIN Pet p ON j.pet_id = p.id
               WHERE j.caregiver_id IS NULL 
-              AND j.user_id != :exclude_caregiver_id
+              AND j.status = 'Open'
               ORDER BY j.start_time ASC";
     
     $stmt = $pdo->prepare($query);
-    $stmt->bindParam(':exclude_caregiver_id', $exclude_caregiver_id, PDO::PARAM_INT);
-    $stmt->execute();
+    $stmt->execute(); 
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -184,5 +185,48 @@ function getCompletedJobsCount($userId) {
     
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result['completed_jobs'] ?? 0;
+}
+
+function applyForJob($job_id, $caregiver_id) {
+    global $pdo;
+    
+    // Check if job is still open
+    $checkQuery = "SELECT caregiver_id FROM Job WHERE id = :job_id AND caregiver_id IS NULL AND status = 'Open'";
+    $checkStmt = $pdo->prepare($checkQuery);
+    $checkStmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
+    $checkStmt->execute();
+    
+    if ($checkStmt->rowCount() === 0) {
+        // Job is already taken
+        return false;
+    }
+    
+    // Update job with caregiver_id
+    $updateQuery = "UPDATE Job SET caregiver_id = :caregiver_id, status = 'Pending' WHERE id = :job_id";
+    $updateStmt = $pdo->prepare($updateQuery);
+    $updateStmt->bindParam(':caregiver_id', $caregiver_id, PDO::PARAM_INT);
+    $updateStmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
+    
+    return $updateStmt->execute();
+}
+
+function createOpenJob($user_id, $pet_id, $service_type, $start_time, $end_time, $price, $location = '') {
+    global $pdo;
+    
+    $query = "INSERT INTO Job 
+              (user_id, pet_id, service_type, start_time, end_time, price, location, status, payment_id) 
+              VALUES 
+              (:user_id, :pet_id, :service_type, :start_time, :end_time, :price, :location, 'Open', NULL)";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->bindParam(':pet_id', $pet_id, PDO::PARAM_INT);
+    $stmt->bindParam(':service_type', $service_type);
+    $stmt->bindParam(':start_time', $start_time);
+    $stmt->bindParam(':end_time', $end_time);
+    $stmt->bindParam(':price', $price);
+    $stmt->bindParam(':location', $location);
+    
+    return $stmt->execute();
 }
 ?>

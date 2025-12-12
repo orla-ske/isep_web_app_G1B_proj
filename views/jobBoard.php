@@ -226,9 +226,7 @@
                                         <option value="">Choose service...</option>
                                         <option value="Dog Walking">Dog Walking</option>
                                         <option value="Pet Sitting">Pet Sitting</option>
-                                        <option value="Grooming">Grooming</option>
                                         <option value="Daycare">Daycare</option>
-                                        <option value="Boarding">Boarding</option>
                                         <option value="Training">Training</option>
                                     </select>
                                 </div>

@@ -56,17 +56,13 @@ if ($role === 'caregiver') {
     $stats['earnings'] = getCaregiverEarnings($current_user_id);
     $listItems = getCaregiverUpcomingJobs($current_user_id);
     $stats['pending_jobs'] = count($listItems);
-    // For caregivers
     $stats['avg_rating'] = getAverageRating($current_user_id);
     $stats['total_reviews'] = getTotalReviews($current_user_id);
-
-
 } else {
     // Pet owner dashboard data
     $pets = getUserPets($current_user_id);
     $stats['total_pets'] = count($pets);
     $listItems = getOwnerJobs($current_user_id);
-    // For pet owners
     $stats['total_spent'] = getTotalSpent($current_user_id);
     $stats['completed_jobs'] = getCompletedJobsCount($current_user_id);
     
