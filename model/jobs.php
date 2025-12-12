@@ -98,9 +98,12 @@ function getOpenJobs($exclude_caregiver_id) {
               j.service_type,
               j.start_time,
               j.price,
+              j.location,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
               p.name as pet_name, 
-              p.breed
+              p.breed,
+              p.age,
+              p.photo_url
               FROM Job j 
               JOIN users u ON j.user_id = u.id 
               JOIN Pet p ON j.pet_id = p.id
@@ -110,6 +113,42 @@ function getOpenJobs($exclude_caregiver_id) {
     
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':exclude_caregiver_id', $exclude_caregiver_id, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function searchOpenJobs($exclude_caregiver_id, $searchTerm) {
+    global $pdo;
+    
+    $searchTerm = "%$searchTerm%";
+    
+    $query = "SELECT 
+              j.id,
+              j.service_type,
+              j.start_time,
+              j.price,
+              j.location,
+              CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
+              p.name as pet_name, 
+              p.breed,
+              p.age,
+              p.photo_url
+              FROM Job j 
+              JOIN users u ON j.user_id = u.id 
+              JOIN Pet p ON j.pet_id = p.id
+              WHERE j.caregiver_id IS NULL 
+              AND j.user_id != :exclude_caregiver_id
+              AND (
+                  j.location LIKE :search 
+                  OR j.service_type LIKE :search 
+                  OR p.breed LIKE :search
+              )
+              ORDER BY j.start_time ASC";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':exclude_caregiver_id', $exclude_caregiver_id, PDO::PARAM_INT);
+    $stmt->bindParam(':search', $searchTerm, PDO::PARAM_STR);
     $stmt->execute();
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
