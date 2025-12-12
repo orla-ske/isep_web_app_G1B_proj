@@ -300,6 +300,39 @@
 
         <?php else: ?>
 
+        <div style="margin-bottom: 30px;">
+            <form method="GET" action="" style="display: flex; gap: 10px; max-width: 800px; margin: 0 auto;">
+                <input type="text" name="search_caregiver" placeholder="Find a caregiver by name or location..." value="<?php echo htmlspecialchars($_GET['search_caregiver'] ?? ''); ?>" style="flex: 1; padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(10px); background: rgba(255,255,255,0.8); font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <button type="submit" class="submit-btn">Search</button>
+                <?php if(isset($_GET['search_caregiver'])): ?>
+                    <a href="DashboardController.php" class="btn-action" style="display:flex; align-items:center; text-decoration:none; background: #64748B;">Clear</a>
+                <?php endif; ?>
+            </form>
+        </div>
+
+        <?php if (!empty($caregiverSearchResults)): ?>
+            <div class="glass-card" style="margin-bottom: 30px;">
+                <h2><span style="color:#4A9FD8">🔍</span> Search Results</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                    <?php foreach($caregiverSearchResults as $caregiver): ?>
+                        <div style="background: rgba(255,255,255,0.6); padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.5);">
+                            <div style="width: 60px; height: 60px; background: #e0e7ff; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: #4365ff; font-weight: bold; font-size: 24px;">
+                                <?php echo strtoupper(substr($caregiver['first_name'], 0, 1)); ?>
+                            </div>
+                            <div style="font-weight: 700; font-size: 18px; color: #1e293b; margin-bottom: 5px;">
+                                <?php echo htmlspecialchars($caregiver['first_name'] . ' ' . ($caregiver['last_name'] ?? '')); ?>
+                            </div>
+                            <div style="color: #64748B; font-size: 14px; margin-bottom: 15px;">
+                                📍 <?php echo htmlspecialchars($caregiver['city'] ?? $caregiver['address'] ?? 'Unknown Location'); ?>
+                            </div>
+                            <!-- Future feature: View Profile / Contact -->
+                            <button class="btn-action" style="width: 100%;">View Profile</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="grid-layout">
             <div class="glass-card">
                 <h2><span style="color:#4A9FD8">🐾</span> My Pets</h2>
