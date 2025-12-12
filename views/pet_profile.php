@@ -368,11 +368,8 @@ $initial = strtoupper(substr($ownerName, 0, 1));
         </div>
 
         <ul class="menu-list">
-            <li><a href="../landingPage.html" class="menu-item">Home</a></li>
-            <li><a href="../index.php" class="menu-item">Dashboard</a></li>
+            <li><a href="../controller/DashboardController.php" class="menu-item">Dashboard</a></li>
             <li><a href="#" class="menu-item">My Pets</a></li>
-            <li><a href="#" class="menu-item">Appointments</a></li>
-            <li><a href="#" class="menu-item">Messages</a></li>
             <li><a href="#" class="menu-item">Settings</a></li>
             <li><a href="#" class="menu-item active">Profile</a></li>
             <li><a href="../logout.php" class="menu-item">Logout</a></li>

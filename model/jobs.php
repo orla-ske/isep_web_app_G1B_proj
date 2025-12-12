@@ -89,4 +89,100 @@ function updateJobStatus($job_id, $status) {
     
     return $stmt->execute();
 }
+
+function getOpenJobs($exclude_caregiver_id) {
+    global $pdo;
+    
+    $query = "SELECT 
+              j.id,
+              j.service_type,
+              j.start_time,
+              j.price,
+              CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
+              p.name as pet_name, 
+              p.breed
+              FROM Job j 
+              JOIN users u ON j.user_id = u.id 
+              JOIN Pet p ON j.pet_id = p.id
+              WHERE j.caregiver_id IS NULL 
+              AND j.user_id != :exclude_caregiver_id
+              ORDER BY j.start_time ASC";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':exclude_caregiver_id', $exclude_caregiver_id, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getAverageRating($userId) {
+    global $pdo;
+    
+    $query = "SELECT AVG(Stars) as avg_rating 
+              FROM Rating 
+              WHERE Job_Agreement_id IN (
+                  SELECT id 
+                  FROM Job_Agreement 
+                  WHERE Users_id = :user_id
+              )";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['avg_rating'] ?? 0;
+}
+
+function getTotalReviews($userId) {
+    global $pdo;
+    
+    $query = "SELECT COUNT(*) as total_reviews 
+              FROM Rating 
+              WHERE Job_Agreement_id IN (
+                  SELECT id 
+                  FROM Job_Agreement 
+                  WHERE Users_id = :user_id
+              )";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['total_reviews'] ?? 0;
+}
+
+function getTotalSpent($userId) {
+    global $pdo;
+    
+    $query = "SELECT SUM(price) as total_spent 
+              FROM Job 
+              WHERE user_id = :user_id 
+              AND status = 'Completed'";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['total_spent'] ?? 0;
+}
+
+
+function getCompletedJobsCount($userId) {
+    global $pdo;
+    
+    $query = "SELECT COUNT(*) as completed_jobs 
+              FROM Job 
+              WHERE user_id = :user_id 
+              AND status = 'Completed'";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['completed_jobs'] ?? 0;
+}
 ?>

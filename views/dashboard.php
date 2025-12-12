@@ -18,6 +18,46 @@
             animation: gradient-shift 15s ease infinite;
             z-index: -1;
         }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            height: 3rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: rgba(0, 0, 0, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #764ba2;
+        }
         @keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         
         .paw-container { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -122,6 +162,8 @@
         .submit-btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
         .pet-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .pet-avatar.clickable { cursor: pointer; transition: all 0.3s; }
+        .pet-avatar.clickable:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(67, 101, 255, 0.4); border-color: #4365ff; }
         .flex-row { display: flex; align-items: center; }
 
         .logout-btn {
@@ -155,6 +197,21 @@
     <div class="heart heart-1">❤️</div>
     <div class="heart heart-2">💙</div>
 
+    <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="landingPage.html" class="logo-link">
+                    <img src="../petstride-logo.png" alt="PetStride" class="nav-logo">
+                </a>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">Home</a>
+                    <a href="../faq.html" class="nav-link">FAQ</a>
+                    <a href="../forum.html" class="nav-link">Forum</a>
+                    <a href="../contactUs.html" class="nav-link">Contact</a>
+                </div>
+            </div>
+        </nav>
+
     <div class="dashboard-content">
         
         <header class="header-glass">
@@ -170,7 +227,7 @@
                 <div style="width: 40px; height: 40px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4365ff; font-weight: bold; margin-right: 15px;">
                     <?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?>
                 </div>
-                <a href="logout.php" class="logout-btn">Logout</a>
+                <a href="../logout.php" class="logout-btn">Logout</a>
             </div>
         </header>
 
@@ -187,6 +244,16 @@
                 <h2><span style="color:#4A9FD8">📅</span> Schedule</h2>
                 <div class="stat-big"><?php echo $stats['pending_jobs'] ?? 0; ?></div>
                 <div class="stat-label">Upcoming Jobs</div>
+                <button class="submit-btn" onclick="window.location.href='../controller/JobController.php'">+ Explore Jobs</button>
+            </div>
+
+            <div class="glass-card">
+                <h2><span style="color:#4A9FD8">⭐</span> Overall Rating</h2>
+                <div class="stat-big"><?php echo number_format($stats['avg_rating'] ?? 0, 1); ?></div>
+                <div class="stat-label">Average Rating</div>
+                <p style="font-size: 12px; color: #64748B; margin-top: 10px;">
+                    Based on <?php echo $stats['total_reviews'] ?? 0; ?> reviews
+                </p>
             </div>
 
             <div class="glass-card" style="grid-column: 1 / -1;">
@@ -220,7 +287,7 @@
                                 </td>
                                 <td><span class="status-badge status-Pending"><?php echo htmlspecialchars($job['service_type'] ?? 'Service'); ?></span></td>
                                 <td><?php echo isset($job['start_time']) ? date('M d, H:i', strtotime($job['start_time'])) : 'TBD'; ?></td>
-                                <td><button class="btn-action" onclick="startJob(<?php echo $job['id']; ?>)">Start Job</button></td>
+                                <td><button class="btn-action" onclick="window.location.href='../controller/JobController.php'">View Jobs</button></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -240,8 +307,10 @@
                     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                         <?php foreach($pets as $pet): ?>
                             <div style="text-align: center;">
-                                <a href="PetProfileController.php?id=<?php echo $pet['id']; ?>" style="text-decoration: none; color: inherit;">
-                                    <img src="<?php echo htmlspecialchars($pet['photo_url'] ?? 'https://via.placeholder.com/60'); ?>" class="pet-avatar" style="width: 60px; height: 60px; margin: 0 auto 10px auto;">
+                                <a href="PetProfileController.php?id=<?php echo $pet['id']; ?>" style="text-decoration: none;">
+                                    <img src="<?php echo htmlspecialchars($pet['photo_url'] ?? 'https://via.placeholder.com/60'); ?>" 
+                                        class="pet-avatar clickable" 
+                                        style="width: 60px; height: 60px; margin: 0 auto 10px auto;">
                                 </a>
                                 <div style="font-weight: 600; font-size: 14px;"><?php echo htmlspecialchars($pet['name']); ?></div>
                                 <div style="font-size: 12px; color: #64748B;"><?php echo htmlspecialchars($pet['breed'] ?? ''); ?></div>
@@ -252,7 +321,7 @@
                     <p style="color: #94A3B8;">No pets added yet.</p>
                 <?php endif; ?>
                 <div style="margin-top: 20px; text-align: center;">
-                    <button class="submit-btn" onclick="window.location.href='add-pet.php'">+ Add New Pet</button>
+                    <button class="submit-btn" onclick="window.location.href='../controller/AddPetController.php'">+ Add New Pet</button>
                 </div>
             </div>
 
@@ -262,6 +331,15 @@
                     <span style="color: #64748B; font-size: 14px;">📍 GPS Tracking Map</span>
                 </div>
                 <p style="font-size: 12px; color: #64748B; margin-top: 10px; text-align: center;">Real-time GPS data from Device ID 102</p>
+            </div>
+
+            <div class="glass-card">
+                <h2><span style="color:#4A9FD8">💳</span> Total Spent</h2>
+                <div class="stat-big">$<?php echo number_format($stats['total_spent'] ?? 0, 2); ?></div>
+                <div class="stat-label">Total Expenses</div>
+                <p style="font-size: 12px; color: #64748B; margin-top: 10px;">
+                    <?php echo $stats['completed_jobs'] ?? 0; ?> completed services
+                </p>
             </div>
 
             <div class="glass-card" style="grid-column: 1 / -1;">
@@ -296,6 +374,7 @@
                     </table>
                 <?php else: ?>
                     <p style="padding: 20px; text-align: center; color: #94A3B8;">No activity history yet.</p>
+                    <button class="btn-action" onclick="window.location.href='../controller/JobController.php'">View Jobs</button>
                 <?php endif; ?>
             </div>
         </div>
@@ -305,32 +384,6 @@
     </div>
 </div>
 
-<script>
-function startJob(jobId) {
-    if (!confirm('Start this job?')) return;
-    
-    const formData = new FormData();
-    formData.append('job_id', jobId);
-    
-    fetch('controllers/DashboardController.php?action=start_job', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Job started successfully!');
-            location.reload();
-        } else {
-            alert('Failed to start job: ' + (data.message || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while starting the job');
-    });
-}
-</script>
 
 </body>
 </html>

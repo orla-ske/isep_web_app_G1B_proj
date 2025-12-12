@@ -1,7 +1,7 @@
 <?php
     $servername = "localhost";
     $username = "root";
-    $password = "";
+    $password = "root";
     $dbname = "petstridedb";
 
     $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
