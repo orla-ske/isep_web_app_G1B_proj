@@ -91,7 +91,11 @@ if ($user_type === 'caregiver') {
     $total_earnings = getCaregiverEarnings($user_id);
     
     // Get open jobs available for application
-    $open_jobs = getOpenJobs($user_id);
+    if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $open_jobs = searchOpenJobs($user_id, $_GET['search']);
+    } else {
+        $open_jobs = getOpenJobs($user_id);
+    }
 } else {
     // Get owner's jobs
     $jobs = getOwnerJobs($user_id);
