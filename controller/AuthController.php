@@ -3,12 +3,12 @@ session_start();
 header('Content-Type: application/json'); // Return JSON for the JS frontend
 
 // Include your existing user logic
-require_once '../model/users.php'; 
+require_once '../model/users.php';
 
 $response = ['status' => 'error', 'message' => 'An unexpected error occurred.'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+
     // Get raw POST data
     $action = $_POST['action'] ?? '';
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
@@ -29,18 +29,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['email'] = $user['email'];
             $_SESSION['firstname'] = $user['first_name'];
             $_SESSION['role'] = $user['role'];
-            
+
             echo json_encode(['status' => 'success', 'message' => 'Login successful! Redirecting...']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid email or password.']);
         }
-    } 
-    
+    }
+
     // --- SIGNUP LOGIC ---
     elseif ($action === 'signup') {
         $firstname = trim($_POST['firstname'] ?? '');
         $lastname = trim($_POST['lastname'] ?? '');
-        
+
         // Basic Validation
         if (empty($firstname) || empty($email) || empty($password) || empty($lastname)) {
             echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
@@ -64,16 +64,77 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Optional: Auto-login after signup
             $newUser = getUserByEmail($email);
             $_SESSION['user_id'] = $newUser['id'];
-            
+
             echo json_encode(['status' => 'success', 'message' => 'Account created! Redirecting...']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Database error. Please try again.']);
         }
-    } 
+    }
+
+  // --- FORGOT PASSWORD (请求重置) ---
+  elseif ($action === 'forgot_password') {
+    if (empty($email)) {
+      echo json_encode(['status' => 'error', 'message' => 'Please enter your email address.']);
+      exit;
+    }
+
+    // if user exists
+    $user = getUserByEmail($email);
+    if (!$user) {
+      // 为了安全，通常不告诉用户邮箱不存在，但为了调试方便先返回错误
+      echo json_encode(['status' => 'error', 'message' => 'Email not found.']);
+      exit;
+    }
+
+    // random Token
+    $token = bin2hex(random_bytes(16));
+
+    // save to database
+    if (setPasswordResetToken($email, $token)) {
+      // 本地测试：直接把链接返回给前端弹出，不发邮件
+      // 在真实项目中，这里应该使用 PHPMailer 发送邮件
+      $resetLink = "http://localhost/PetStride/views/reset_password.php?token=" . $token;
+
+      echo json_encode([
+        'status' => 'success',
+        'message' => 'Reset link generated! (Check console or alert)',
+        'debug_link' => $resetLink // 前端拿到这个链接跳转
+      ]);
+    } else {
+      echo json_encode(['status' => 'error', 'message' => 'Database error.']);
+    }
+  }
+
+  // --- RESET PASSWORD (执行重置) ---
+  elseif ($action === 'reset_password') {
+    $token = $_POST['token'] ?? '';
+    $newPassword = $_POST['password'] ?? '';
+
+    if (empty($token) || empty($newPassword)) {
+      echo json_encode(['status' => 'error', 'message' => 'Missing token or password.']);
+      exit;
+    }
+
+    // verify Token
+    $user = getUserByResetToken($token);
+
+    if ($user) {
+      // update password
+      if (resetUserPassword($user['id'], $newPassword)) {
+        echo json_encode(['status' => 'success', 'message' => 'Password has been reset! Please login.']);
+      } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update password.']);
+      }
+    } else {
+      echo json_encode(['status' => 'error', 'message' => 'Invalid or expired token.']);
+    }
+  }
     else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action.']);
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
+
+
 ?>
