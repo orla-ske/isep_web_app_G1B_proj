@@ -91,9 +91,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // save to database
     if (setPasswordResetToken($email, $token)) {
-      // 本地测试：直接把链接返回给前端弹出，不发邮件
-      // 在真实项目中，这里应该使用 PHPMailer 发送邮件
-      $resetLink = "http://localhost/PetStride/views/reset_password.php?token=" . $token;
+      // 1. 自动获取当前的主机和端口 (例如 localhost:63342)
+      $host = $_SERVER['HTTP_HOST'];
+
+// 2. 自动获取当前脚本所在的目录 (例如 /project/controllers)
+      $currentDir = dirname($_SERVER['PHP_SELF']);
+
+// 3. 计算出根目录 (例如 /project) - 即往上退一级
+      $rootDir = dirname($currentDir);
+
+// 4. 拼接出正确的重置链接
+      $resetLink = "http://" . $host . $rootDir . "/views/reset_password.php?token=" . $token;
 
       echo json_encode([
         'status' => 'success',
