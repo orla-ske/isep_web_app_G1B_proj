@@ -15,6 +15,7 @@
         .paw-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
         .paw { position: absolute; font-size: 60px; opacity: 0.1; animation: float-paw 20s infinite ease-in-out; }
         @keyframes float-paw { 0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; } 50% { transform: translate(30px, -30px) rotate(180deg); opacity: 0.05; } }
+        
         /* Navigation */
         .nav {
             position: sticky;
@@ -54,6 +55,7 @@
         .nav-link.active {
             color: #764ba2;
         }
+        
         .content { position: relative; min-height: 100vh; padding: 40px 20px; }
         
         .header { max-width: 1200px; margin: 0 auto 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
@@ -168,7 +170,7 @@
                 <div class="nav-links">
                     <a href="../controller/DashboardController.php" class="nav-link">Home</a>
                     <a href="../faq.html" class="nav-link">FAQ</a>
-                    <a href="../forum.html" class="nav-link">Forum</a>
+                    <a href="../controller/ForumController.php" class="nav-link">Forum</a>
                     <a href="../contactUs.html" class="nav-link">Contact</a>
                 </div>
             </div>
@@ -420,6 +422,17 @@
                                     <?php endif; ?>
                                 </div>
 
+                                <!-- Chat Integration -->
+                                <?php if ($user_type === 'pet_owner' && !empty($job['caregiver_id'])): ?>
+                                    <div class="job-actions">
+                                        <a href="../controller/ChatController.php?job_id=<?php echo $job['id']; ?>" 
+                                           class="action-btn btn-apply" 
+                                           style="text-align: center; text-decoration: none; display: block;">
+                                            💬 Message Caregiver
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+
                                 <?php if ($user_type === 'caregiver'): ?>
                                     <?php if (!isset($job['status']) || $job['status'] === 'Pending' || $job['status'] === null): ?>
                                         <form method="POST" class="job-actions">
@@ -428,61 +441,71 @@
                                             <button type="submit" name="action" value="decline" class="action-btn btn-decline">Decline</button>
                                         </form>
                                     <?php elseif ($job['status'] === 'Confirmed'): ?>
-                                        <form method="POST" class="job-actions">
-                                            <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
-                                            <button type="submit" name="action" value="complete" class="action-btn btn-complete">Mark as Completed</button>
-                                        </form>
+                                        <div class="job-actions">
+                                            <a href="../controller/ChatController.php?job_id=<?php echo $job['id']; ?>" 
+                                               class="action-btn btn-apply" 
+                                               style="text-align: center; text-decoration: none; display: block;">
+                                                💬 Message Client
+                                            </a>
+                                            <form method="POST" style="flex: 1;">
+                                                <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
+                                                <button type="submit" name="action" value="complete" class="action-btn btn-complete" style="width: 100%;">
+                                                    Mark Complete
+                                                </button>
+                                            </form>
+                                        </div>
                                     <?php endif; ?>
                                 <?php endif; ?>
+
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php elseif ($user_type !== 'caregiver' || empty($open_jobs)): ?>
                     <div class="empty-state">
                         <h3>No Jobs Yet</h3>
-                        <p><?php echo $user_type === 'caregiver' ? 'No jobs available at the moment. Check back soon!' : 'You haven\'t booked any services yet. Create your first job!'; ?></p>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function toggleJobForm() {
-            const form = document.getElementById('jobForm');
-            const btn = document.getElementById('toggleBtn');
-            
-            if (form.classList.contains('hidden')) {
-                form.classList.remove('hidden');
-                btn.textContent = '✕ Cancel';
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                form.classList.add('hidden');
-                btn.textContent = '+ Create New Job';
-            }
+                        <p><?php echo $user_type === 'caregiver' ? 'No jobs available at the moment. Check back soon!' : 'You haven\'t booked any services yet. Create your first job!'; ?>
+                        < /p>
+</div>
+<?php endif; ?>
+</div>
+</div>
+</div>
+<script>
+    function toggleJobForm() {
+        const form = document.getElementById('jobForm');
+        const btn = document.getElementById('toggleBtn');
+        
+        if (form.classList.contains('hidden')) {
+            form.classList.remove('hidden');
+            btn.textContent = '✕ Cancel';
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            form.classList.add('hidden');
+            btn.textContent = '+ Create New Job';
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            const startDateInput = document.querySelector('input[name="start_date"]');
-            const endDateInput = document.querySelector('input[name="end_date"]');
-            
-            if (startDateInput) {
-                startDateInput.setAttribute('min', today);
-            }
-            
-            if (endDateInput) {
-                endDateInput.setAttribute('min', today);
-            }
-            
-            if (startDateInput) {
-                startDateInput.addEventListener('change', function() {
-                    if (endDateInput) {
-                        endDateInput.setAttribute('min', this.value);
-                    }
-                });
-            }
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const startDateInput = document.querySelector('input[name="start_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+        
+        if (startDateInput) {
+            startDateInput.setAttribute('min', today);
+        }
+        
+        if (endDateInput) {
+            endDateInput.setAttribute('min', today);
+        }
+        
+        if (startDateInput) {
+            startDateInput.addEventListener('change', function() {
+                if (endDateInput) {
+                    endDateInput.setAttribute('min', this.value);
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

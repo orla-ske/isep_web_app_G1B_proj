@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Agreement #<?php echo htmlspecialchars($agreement_id); ?></title>
+    <title>Chat - Job #<?php echo htmlspecialchars($job_id); ?></title>
     <style>
         * {
             margin: 0;
@@ -14,14 +14,15 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .chat-container {
-            width: 90%;
+            width: 100%;
             max-width: 900px;
             height: 90vh;
             background: white;
@@ -41,23 +42,29 @@
             align-items: center;
         }
 
-        .chat-header h2 {
+        .chat-header-left h2 {
             font-size: 20px;
             font-weight: bold;
+            margin-bottom: 5px;
         }
 
         .chat-info {
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.9;
         }
 
-        .unread-badge {
-            background: #ff4757;
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .chat-messages {
@@ -96,7 +103,6 @@
             max-width: 70%;
             padding: 12px 16px;
             border-radius: 18px;
-            position: relative;
             word-wrap: break-word;
         }
 
@@ -117,10 +123,6 @@
             font-size: 11px;
             font-weight: bold;
             margin-bottom: 4px;
-            opacity: 0.8;
-        }
-
-        .message.received .message-sender {
             color: #667eea;
         }
 
@@ -143,6 +145,7 @@
             font-size: 10px;
             margin-top: 2px;
             text-align: right;
+            opacity: 0.8;
         }
 
         .chat-input-container {
@@ -166,13 +169,12 @@
             font-family: inherit;
             resize: none;
             height: 50px;
-            transition: border-color 0.3s, height 0.2s;
+            transition: border-color 0.3s;
         }
 
         textarea:focus {
             outline: none;
             border-color: #667eea;
-            height: 80px;
         }
 
         button {
@@ -193,14 +195,16 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
         }
 
         .chat-messages::-webkit-scrollbar {
@@ -215,57 +219,43 @@
             background: #667eea;
             border-radius: 4px;
         }
-
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #764ba2;
-        }
-
-        .typing-indicator {
-            display: none;
-            padding: 10px;
-            color: #999;
-            font-size: 13px;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <div>
-                <h2>💬 Agreement Chat #<?php echo htmlspecialchars($agreement_id); ?></h2>
-                <div class="chat-info">Chatting with User #<?php echo htmlspecialchars($receiver_id); ?></div>
+            <div class="chat-header-left">
+                <h2>💬 Chat for Job #<?php echo htmlspecialchars($job_id); ?></h2>
+                <div class="chat-info">Chatting with <?php echo htmlspecialchars($receiver_name); ?></div>
             </div>
-            <div>
-                <?php if ($unread_count > 0): ?>
-                    <span class="unread-badge"><?php echo $unread_count; ?> unread</span>
-                <?php endif; ?>
-            </div>
+            <a href="../controller/JobController.php" class="back-btn">← Back to Jobs</a>
         </div>
         
         <div class="chat-messages" id="chatMessages">
-            <?php foreach ($messages as $msg): ?>
-                <div class="message <?php echo ($msg['sender_id'] == $current_user_id) ? 'sent' : 'received'; ?>">
-                    <div class="message-bubble">
-                        <?php if ($msg['sender_id'] != $current_user_id): ?>
-                            <div class="message-sender"><?php echo htmlspecialchars($msg['sender_name'] ?? 'User #' . $msg['sender_id']); ?></div>
-                        <?php endif; ?>
-                        <div class="message-content"><?php echo nl2br(htmlspecialchars($msg['content'])); ?></div>
-                        <div class="message-time">
-                            <?php echo date('g:i A', strtotime($msg['timestamp'])); ?>
-                        </div>
-                        <?php if ($msg['sender_id'] == $current_user_id): ?>
-                            <div class="read-status">
-                                <?php echo $msg['is_read'] ? '✓✓ Read' : '✓ Sent'; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+            <?php if (empty($messages)): ?>
+                <div class="empty-state">
+                    <p>No messages yet. Start the conversation!</p>
                 </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="typing-indicator" id="typingIndicator">
-            User is typing...
+            <?php else: ?>
+                <?php foreach ($messages as $msg): ?>
+                    <div class="message <?php echo ($msg['sender_id'] == $current_user_id) ? 'sent' : 'received'; ?>">
+                        <div class="message-bubble">
+                            <?php if ($msg['sender_id'] != $current_user_id): ?>
+                                <div class="message-sender"><?php echo htmlspecialchars($msg['sender_name']); ?></div>
+                            <?php endif; ?>
+                            <div class="message-content"><?php echo nl2br(htmlspecialchars($msg['content'])); ?></div>
+                            <div class="message-time">
+                                <?php echo date('g:i A', strtotime($msg['timestamp'])); ?>
+                            </div>
+                            <?php if ($msg['sender_id'] == $current_user_id): ?>
+                                <div class="read-status">
+                                    <?php echo ($msg['is_read'] === 'yes') ? '✓✓ Read' : '✓ Sent'; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
         
         <div class="chat-input-container">
@@ -283,7 +273,7 @@
     <script>
         const currentUserId = <?php echo $current_user_id; ?>;
         const receiverId = <?php echo $receiver_id; ?>;
-        const agreementId = <?php echo $agreement_id; ?>;
+        const jobId = <?php echo $job_id; ?>;
         
         function sendMessage() {
             const content = document.getElementById('messageInput').value.trim();
@@ -298,11 +288,9 @@
             sendButton.textContent = 'Sending...';
             
             const formData = new FormData();
-            formData.append('receiver_id', receiverId);
             formData.append('content', content);
-            formData.append('agreement_id', agreementId);
             
-            fetch('controllers/ChatController.php?action=send', {
+            fetch(`../controller/ChatController.php?job_id=${jobId}&action=send`, {
                 method: 'POST',
                 body: formData
             })
@@ -312,7 +300,7 @@
                     document.getElementById('messageInput').value = '';
                     loadMessages();
                 } else {
-                    alert('Failed to send message: ' + (data.error || 'Unknown error'));
+                    alert('Failed to send: ' + (data.error || 'Unknown error'));
                 }
             })
             .catch(error => {
@@ -326,18 +314,18 @@
         }
         
         function loadMessages() {
-            fetch(`controllers/ChatController.php?action=get&agreement_id=${agreementId}&receiver_id=${receiverId}`)
+            fetch(`../controller/ChatController.php?job_id=${jobId}&action=get`)
             .then(response => response.json())
             .then(messages => {
-                if (messages.error) {
-                    console.error('Error loading messages:', messages.error);
-                    return;
-                }
-                
                 const chatMessages = document.getElementById('chatMessages');
-                const scrollAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 50;
+                const wasAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 50;
                 
                 chatMessages.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    chatMessages.innerHTML = '<div class="empty-state"><p>No messages yet.</p></div>';
+                    return;
+                }
                 
                 messages.forEach(msg => {
                     const messageDiv = document.createElement('div');
@@ -345,12 +333,12 @@
                     
                     let senderInfo = '';
                     if (msg.sender_id != currentUserId) {
-                        senderInfo = `<div class="message-sender">${escapeHtml(msg.sender_name || 'User #' + msg.sender_id)}</div>`;
+                        senderInfo = `<div class="message-sender">${escapeHtml(msg.sender_name)}</div>`;
                     }
                     
                     let readStatus = '';
                     if (msg.sender_id == currentUserId) {
-                        readStatus = `<div class="read-status">${msg.is_read == 1 ? '✓✓ Read' : '✓ Sent'}</div>`;
+                        readStatus = `<div class="read-status">${msg.is_read === 'yes' ? '✓✓ Read' : '✓ Sent'}</div>`;
                     }
                     
                     messageDiv.innerHTML = `
@@ -364,7 +352,7 @@
                     chatMessages.appendChild(messageDiv);
                 });
                 
-                if (scrollAtBottom) {
+                if (wasAtBottom) {
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             })
@@ -386,10 +374,10 @@
             });
         }
         
-        // Auto-refresh messages every 3 seconds
+        // Auto-refresh every 3 seconds
         setInterval(loadMessages, 3000);
         
-        // Send message on Enter key (Shift+Enter for new line)
+        // Send on Enter (Shift+Enter for new line)
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -397,7 +385,7 @@
             }
         });
         
-        // Scroll to bottom on page load
+        // Scroll to bottom on load
         window.addEventListener('load', function() {
             const chatMessages = document.getElementById('chatMessages');
             chatMessages.scrollTop = chatMessages.scrollHeight;

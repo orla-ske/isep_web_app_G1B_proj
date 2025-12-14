@@ -70,29 +70,11 @@
     }
 
     function getAllpetOwners() {
-        global $pdo; // Fix: use global $pdo instead of $this->conn
-        $query = "SELECT * FROM users WHERE role = 'pet_owner'";
-        $stmt = $pdo->prepare($query);
+        $query = "SELECT * FROM " . $this->table . " WHERE role = 'pet_owner'";
+        $stmt = $this->conn->prepare($query);
         $stmt->execute();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    function searchCaregivers($searchTerm) {
-        global $pdo;
-        $searchTerm = "%$searchTerm%";
-        $query = "SELECT * FROM users 
-                  WHERE role = 'caregiver' 
-                  AND (
-                      first_name LIKE :search 
-                      OR last_name LIKE :search 
-                      OR city LIKE :search 
-                      OR address LIKE :search
-                  )";
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':search', $searchTerm, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
     function updateUserProfile($id, $data) {

@@ -1,0 +1,2 @@
+ALTER TABLE Message ADD COLUMN job_id INT NULL AFTER Job_Agreement_id;
+ALTER TABLE Message ADD FOREIGN KEY (job_id) REFERENCES Job(id);

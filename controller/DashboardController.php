@@ -66,11 +66,6 @@ if ($role === 'caregiver') {
     $stats['total_spent'] = getTotalSpent($current_user_id);
     $stats['completed_jobs'] = getCompletedJobsCount($current_user_id);
     
-    // Search for caregivers
-    $caregiverSearchResults = [];
-    if (isset($_GET['search_caregiver']) && !empty($_GET['search_caregiver'])) {
-        $caregiverSearchResults = searchCaregivers($_GET['search_caregiver']);
-    }
 }
 
 // Load the view
