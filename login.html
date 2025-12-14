@@ -408,7 +408,7 @@
     <!-- Animated Background -->
     <div class="container">
         <div class="background"></div>
-        
+
         <!-- Decorative Elements -->
         <div class="paw-container">
             <div class="paw paw-1">🐾</div>
@@ -427,7 +427,6 @@
                     <a href="faq.html" class="nav-link">FAQ</a>
                     <a href="forum.html" class="nav-link">Forum</a>
                     <a href="contactUs.html" class="nav-link">Contact</a>
-                    <a href="about_us.html" class="nav-link">About Us</a>
                 </div>
             </div>
         </nav>
@@ -484,7 +483,7 @@
                     </div>
 
                     <div class="forgot-password">
-                        <a href="#" onclick="alert('Password recovery coming soon!'); return false;">Forgot password?</a>
+                      <a href="views/forgot_password.php">Forgot password?</a>
                     </div>
 
                     <button type="submit" id="submit-btn" class="submit-btn">Sign In</button>
@@ -505,7 +504,7 @@
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
@@ -518,7 +517,7 @@
         function toggleSignupPassword() {
             const passwordInput = document.getElementById('signup-password');
             const eyeIcon = document.getElementById('signup-eye-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
@@ -537,7 +536,7 @@
     window.togglePassword = function() {
         const passwordInput = document.getElementById('password-input');
         const eyeIcon = document.getElementById('eye-icon');
-        
+
         if (passwordInput && passwordInput.getAttribute('type') === 'password') {
             passwordInput.setAttribute('type', 'text');
             // Optional: Change icon style if needed
@@ -578,7 +577,7 @@
 
                 if (result.status === 'success') {
                     // Success - Redirect
-                    window.location.href = result.redirect || '/PetStride/controller/DashboardController.php'; 
+                    window.location.href = result.redirect || '/PetStride/controller/DashboardController.php';
                 } else {
                     // Error - Show alert
                     alert(result.message);
