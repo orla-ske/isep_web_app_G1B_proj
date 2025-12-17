@@ -1,94 +1,113 @@
 <?php
-require_once 'models/Message.php';
+session_start();
+require_once '../model/Message.php';
 
-class ChatController {
-    private $db;
-    private $message;
-
-    public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->message = new Message($this->db);
-    }
-
-    public function index() {
-        // Get agreement_id and receiver_id from URL or session
-        $agreement_id = $_GET['agreement_id'] ?? 1;
-        $receiver_id = $_GET['receiver_id'] ?? 2;
-        $current_user_id = $_SESSION['user_id'];
-        
-        // Get messages for this conversation
-        $messages = $this->message->getConversation($current_user_id, $receiver_id, $agreement_id);
-        
-        // Mark messages as read
-        $this->message->markAsRead($current_user_id, $agreement_id);
-        
-        // Get unread count
-        $unread_count = $this->message->getUnreadCount($current_user_id, $agreement_id);
-        
-        require_once 'views/chat.php';
-    }
-
-    public function sendMessage() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->message->sender_id = $_SESSION['user_id'];
-            $this->message->receiver_id = $_POST['receiver_id'] ?? null;
-            $this->message->content = $_POST['content'] ?? '';
-            $this->message->agreement_id = $_POST['agreement_id'] ?? null;
-
-            if ($this->message->createMessage()) {
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'Failed to send message']);
-            }
-        }
-    }
-
-    public function getMessages() {
-        $agreement_id = $_GET['agreement_id'] ?? null;
-        $receiver_id = $_GET['receiver_id'] ?? null;
-        $current_user_id = $_SESSION['user_id'];
-        
-        if ($agreement_id && $receiver_id) {
-            $messages = $this->message->getConversation($current_user_id, $receiver_id, $agreement_id);
-            
-            // Mark as read
-            $this->message->markAsRead($current_user_id, $agreement_id);
-            
-            echo json_encode($messages);
-        } else {
-            echo json_encode(['error' => 'Missing parameters']);
-        }
-    }
-
-    public function getUnreadCount() {
-        $agreement_id = $_GET['agreement_id'] ?? null;
-        $current_user_id = $_SESSION['user_id'];
-        
-        if ($agreement_id) {
-            $count = $this->message->getUnreadCount($current_user_id, $agreement_id);
-            echo json_encode(['unread_count' => $count]);
-        } else {
-            echo json_encode(['error' => 'Missing agreement_id']);
-        }
-    }
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../views/login.php');
+    exit;
 }
 
-// AJAX Handler
+$current_user_id = $_SESSION['user_id'];
+
+// Handle AJAX requests
 if (isset($_GET['action'])) {
-    $controller = new ChatController();
+    header('Content-Type: application/json');
     
     switch ($_GET['action']) {
         case 'send':
-            $controller->sendMessage();
+            handleSendMessage($current_user_id);
             break;
         case 'get':
-            $controller->getMessages();
+            handleGetMessages($current_user_id);
             break;
         case 'unread':
-            $controller->getUnreadCount();
+            handleGetUnreadCount($current_user_id);
             break;
+        default:
+            echo json_encode(['error' => 'Invalid action']);
     }
     exit;
+}
+
+// Default: Display chat page
+$job_id = $_GET['job_id'] ?? null;
+
+if (!$job_id) {
+    header('Location: JobController.php');
+    exit;
+}
+
+// Get the other participant in this conversation
+$otherParticipant = getOtherParticipant($job_id, $current_user_id);
+
+if (!$otherParticipant) {
+    die('Job not found or you do not have access to this conversation.');
+}
+
+$receiver_id = $otherParticipant['other_user_id'];
+$receiver_name = $otherParticipant['other_user_name'];
+
+// Get messages for this conversation
+$messages = getJobMessages($job_id, $current_user_id);
+
+// Mark messages as read
+markMessagesAsRead($current_user_id, $job_id);
+
+// Get unread count
+$unread_count = getUnreadCount($current_user_id, $job_id);
+
+// Load chat view
+require_once '../views/chat.php';
+
+// ==================== HELPER FUNCTIONS ====================
+
+function handleSendMessage($sender_id) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+        return;
+    }
+    
+    $content = trim($_POST['content'] ?? '');
+    $job_id = $_POST['job_id'] ?? null;
+    
+    if (empty($content) || !$job_id) {
+        echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+        return;
+    }
+    
+    if (sendMessage($sender_id, $job_id, $content)) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Failed to send message']);
+    }
+}
+
+function handleGetMessages($current_user_id) {
+    $job_id = $_GET['job_id'] ?? null;
+    
+    if (!$job_id) {
+        echo json_encode(['error' => 'Missing job_id parameter']);
+        return;
+    }
+    
+    $messages = getJobMessages($job_id, $current_user_id);
+    
+    // Mark as read
+    markMessagesAsRead($current_user_id, $job_id);
+    
+    echo json_encode($messages);
+}
+
+function handleGetUnreadCount($current_user_id) {
+    $job_id = $_GET['job_id'] ?? null;
+    
+    if (!$job_id) {
+        echo json_encode(['error' => 'Missing job_id']);
+        return;
+    }
+    
+    $count = getUnreadCount($current_user_id, $job_id);
+    echo json_encode(['unread_count' => $count]);
 }
 ?>

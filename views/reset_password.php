@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Set New Password - PetStride</title>
-  <link rel="stylesheet" href="../login.css">
+  <link rel="stylesheet" href="../Style/login.css">
   <style> body { display: flex; align-items: center; justify-content: center; min-height: 100vh; } </style>
 </head>
 <body>

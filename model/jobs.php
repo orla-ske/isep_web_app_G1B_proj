@@ -33,6 +33,7 @@ function getCaregiverUpcomingJobs($caregiver_id) {
               j.id,
               j.service_type,
               j.start_time,
+              j.status,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as client_name, 
               u.address, 
               p.name as pet_name, 

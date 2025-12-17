@@ -38,19 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // --- SIGNUP LOGIC ---
     elseif ($action === 'signup') {
-        $firstname = trim($_POST['firstname'] ?? '');
-        $lastname = trim($_POST['lastname'] ?? '');
-
-        // Basic Validation
-        if (empty($firstname) || empty($email) || empty($password) || empty($lastname)) {
-            echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
-            exit;
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid email format.']);
-            exit;
-        }
+        $firstname = trim($_POST['firstName'] ?? '');
+        $lastname = trim($_POST['lastName'] ?? '');
+        $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'] ?? '';
+        $role = $_POST['role'];
 
         // check if user exists
         if (getUserByEmail($email)) {
@@ -60,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         // Attempt to create user
-        if (createUser($firstname, $lastname, $email, $password)) {
+        if (createUser($firstname, $lastname, $email, $password, $role)) {
             // Optional: Auto-login after signup
             $newUser = getUserByEmail($email);
             $_SESSION['user_id'] = $newUser['id'];
@@ -72,7 +64,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
   // --- FORGOT PASSWORD (请求重置) ---
-  elseif ($action === 'forgot_password') {
+  // --- FORGOT PASSWORD ---
+elseif ($action === 'forgot_password') {
     if (empty($email)) {
       echo json_encode(['status' => 'error', 'message' => 'Please enter your email address.']);
       exit;
@@ -112,6 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       echo json_encode(['status' => 'error', 'message' => 'Database error.']);
     }
   }
+
 
   // --- RESET PASSWORD (执行重置) ---
   elseif ($action === 'reset_password') {

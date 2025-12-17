@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Forgot Password - PetStride</title>
   <!-- 确保路径指向正确的 CSS -->
-  <link rel="stylesheet" href="../login.css">
+  <link rel="stylesheet" href="../Style/login.css">
   <style> body { display: flex; align-items: center; justify-content: center; min-height: 100vh; } </style>
 </head>
 <body>
@@ -33,31 +33,61 @@
 
 <script>
   document.getElementById('forgot-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    formData.append('action', 'forgot_password');
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  formData.append('action', 'forgot_password');
 
-    const btn = this.querySelector('button');
-    btn.innerText = 'Sending...';
+  const btn = this.querySelector('button');
+  const originalText = btn.innerText;
+  btn.disabled = true;
+  btn.innerText = 'Sending...';
 
+  try {
+    const res = await fetch('../controller/AuthController.php', { 
+      method: 'POST', 
+      body: formData 
+    });
+
+    // Get the raw text first
+    const text = await res.text();
+    
+    // Try to parse as JSON
+    let data;
     try {
-      const res = await fetch('../controller/AuthController.php', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.status === 'success') {
-        // ⚠️ 模拟发送邮件：直接跳转到重置页
-        alert("Simulating Email: Click OK to go to reset page.\n\n" + data.debug_link);
-        window.location.href = data.debug_link;
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert('System error');
-    } finally {
-      btn.innerText = 'Send Reset Link';
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Invalid JSON response:', text);
+      alert('Server error: Invalid response format. Check console for details.');
+      return;
     }
-  });
+
+    if (data.status === 'success') {
+      alert(data.message);
+      
+      // ⚠️ DEVELOPMENT ONLY: Auto-redirect to reset page
+      if (data.debug_link) {
+        const goToReset = confirm('DEBUG MODE: Go directly to reset page?');
+        if (goToReset) {
+          window.location.href = data.debug_link;
+        }
+      }
+      
+    } else {
+      alert(data.message || 'An error occurred');
+      if (data.error_detail) {
+        console.error('Error details:', data.error_detail);
+      }
+    }
+    
+  } catch (err) {
+    console.error('Error:', err);
+    alert('System error. Please try again later.');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = originalText;
+  }
+});
 </script>
 </body>
 </html>

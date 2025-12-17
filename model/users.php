@@ -25,14 +25,15 @@
         return $password == $hash;
     }
 
-    function createUser($firstname, $lastname, $email, $password) {
+    function createUser($firstname, $lastname, $email, $password, $role) {
         global $pdo;
         $password = hashPassword($password);
-        $stmt = $pdo->prepare("INSERT INTO users (firstname, lastname, email, password) VALUES (:firstname, :lastname, :email, :password)");
+        $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password, role) VALUES (:firstname, :lastname, :email, :password, :role)");
         $stmt->bindParam(':firstname', $firstname);
         $stmt->bindParam(':lastname', $lastname);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $password);
+        $stmt->bindParam(':role', $role);
         return $stmt->execute();
     }
 

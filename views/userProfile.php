@@ -400,7 +400,7 @@
 
         <ul class="menu-list">
             <li><a href="../controller/DashboardController.php" class="menu-item">Dashboard</a></li>
-            <li><a href="../controller/JobsController.php" class="menu-item">Jobs</a></li>
+            <li><a href="../controller/JobController.php" class="menu-item">Jobs</a></li>
             <li><a href="#" class="menu-item active">Settings</a></li>
             <li><a href="../controller/LogoutController.php" class="menu-item">Logout</a></li>
         </ul>

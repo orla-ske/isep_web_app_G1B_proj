@@ -36,23 +36,51 @@ function getJobMessages($job_id, $user_id) {
 }
 
 // Send a message
-function sendMessage($sender_id, $receiver_id, $job_id, $content) {
+function sendMessage($sender_id, $job_id, $content) {
     global $pdo;
-    
-    $content = htmlspecialchars(strip_tags($content));
-    
-    $query = "INSERT INTO Message 
-              (sender_id, reciever_id, content, job_id, timestamp, is_read) 
-              VALUES (:sender_id, :receiver_id, :content, :job_id, NOW(), 'no')";
-    
+
+    // Sanitize message content
+    $content = htmlspecialchars(strip_tags($content), ENT_QUOTES, 'UTF-8');
+
+    // 1. Get both IDs from the Job to determine the correct receiver
+    // This allows the pet owner to message the caregiver OR vice versa.
+    $jobQuery = "
+        SELECT owner_id, caregiver_id
+        FROM Job
+        WHERE id = :job_id
+        LIMIT 1
+    ";
+
+    $jobStmt = $pdo->prepare($jobQuery);
+    $jobStmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
+    $jobStmt->execute();
+
+    $job = $jobStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Job not found or caregiver not yet assigned
+    if (!$job || empty($job['caregiver_id'])) {
+        return false;
+    }
+
+    // Identify the receiver: If sender is owner, receiver is caregiver (and vice versa)
+    $receiver_id = ($sender_id == $job['owner_id']) ? $job['caregiver_id'] : $job['owner_id'];
+
+    // 2. Insert message
+    $query = "
+        INSERT INTO Message 
+        (sender_id, receiver_id, content, job_id, timestamp, is_read) 
+        VALUES (:sender_id, :receiver_id, :content, :job_id, NOW(), 'no')
+    ";
+
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':sender_id', $sender_id, PDO::PARAM_INT);
     $stmt->bindParam(':receiver_id', $receiver_id, PDO::PARAM_INT);
-    $stmt->bindParam(':content', $content);
+    $stmt->bindParam(':content', $content, PDO::PARAM_STR);
     $stmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
-    
+
     return $stmt->execute();
 }
+
 
 // Mark messages as read
 function markMessagesAsRead($user_id, $job_id) {

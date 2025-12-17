@@ -205,9 +205,10 @@
                 </a>
                 <div class="nav-links">
                     <a href="#" class="nav-link">Home</a>
-                    <a href="../faq.html" class="nav-link">FAQ</a>
+                    <a href="../controller/JobController.php" class="nav-link">Jobs</a>
                     <a href="../controller/ForumController.php" class="nav-link">Forum</a>
                     <a href="../contactUs.html" class="nav-link">Contact</a>
+                    <a href="../faq.html" class="nav-link">FAQ</a>
                     <a href="../controller/UserProfileController.php" class="nav-link">Settings</a>
                 </div>
             </div>
@@ -331,7 +332,7 @@
                 <div style="background: rgba(255,255,255,0.5); border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1;">
                     <span style="color: #64748B; font-size: 14px;">📍 GPS Tracking Map</span>
                 </div>
-                <p style="font-size: 12px; color: #64748B; margin-top: 10px; text-align: center;">Real-time GPS data from Device ID 102</p>
+                <p style="font-size: 12px; color: #64748B; margin-top: 10px; text-align: center;">Real-time tracking coming soon</p>
             </div>
 
             <div class="glass-card">

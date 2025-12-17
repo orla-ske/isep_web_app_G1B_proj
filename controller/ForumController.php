@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once '../models/connection.php';
-require_once '../models/ForumModel.php';
+require_once '../model/connection.php';
+require_once '../model/forum.php';
 
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['user_id']);
