@@ -148,6 +148,9 @@
             .jobs-grid { grid-template-columns: 1fr; }
             .job-actions { flex-direction: column; }
         }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .modal.hidden { display: none; }
+        .modal-content { background: white; border-radius: 16px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -225,25 +228,17 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">Select Pet *</label>
-                                    <select name="pet_id" class="form-select" required>
-                                        <option value="">Choose a pet...</option>
-                                        <?php foreach ($user_pets as $pet): ?>
-                                            <option value="<?php echo $pet['id']; ?>">
-                                                <?php echo htmlspecialchars($pet['name']) . ' (' . htmlspecialchars($pet['breed']) . ')'; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Service Type *</label>
-                                    <select name="service_type" class="form-select" required>
-                                        <option value="">Choose service...</option>
-                                        <option value="Dog Walking">Dog Walking</option>
-                                        <option value="Pet Sitting">Pet Sitting</option>
-                                        <option value="Daycare">Daycare</option>
-                                        <option value="Training">Training</option>
-                                    </select>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select name="pet_id" class="form-select" required style="flex: 1;">
+                                            <option value="">Choose a pet...</option>
+                                            <?php foreach ($user_pets as $pet): ?>
+                                                <option value="<?php echo $pet['id']; ?>">
+                                                    <?php echo htmlspecialchars($pet['name']) . ' (' . htmlspecialchars($pet['breed']) . ')'; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="button" onclick="openPetModal()" class="btn btn-secondary" style="padding: 12px 16px; white-space: nowrap;">+ Add Pet</button>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -254,6 +249,18 @@
                                 <div class="form-group">
                                     <label class="form-label">Location</label>
                                     <input type="text" name="location" class="form-input" placeholder="Service location">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Assign Caregiver (Optional)</label>
+                                    <select name="caregiver_id" class="form-select">
+                                        <option value="">Open for applications</option>
+                                        <?php foreach ($available_caregivers as $caregiver): ?>
+                                            <option value="<?php echo $caregiver['id']; ?>">
+                                                <?php echo htmlspecialchars($caregiver['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
 
                                 <div class="form-group">
@@ -334,6 +341,54 @@
                                 <form method="POST" class="job-actions">
                                     <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
                                     <button type="submit" name="action" value="apply" class="action-btn btn-apply">Apply for Job</button>
+                                </form>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Pet Owner: Pending Applications Section -->
+                <?php if ($user_type === 'pet_owner' && !empty($pending_applications)): ?>
+                    <div class="section-header">
+                        <h2>Pending Applications</h2>
+                        <p>Review caregiver applications for your jobs</p>
+                    </div>
+                    
+                    <div class="jobs-grid">
+                        <?php foreach ($pending_applications as $app): ?>
+                            <div class="job-card">
+                                <div class="job-header">
+                                    <div class="job-type"><?php echo htmlspecialchars($app['service_type']); ?></div>
+                                    <span class="job-status status-pending">Pending Review</span>
+                                </div>
+
+                                <div class="job-details">
+                                    <div class="detail-row">
+                                        <span class="detail-icon">🐕</span>
+                                        <span class="detail-label">Pet:</span>
+                                        <span><?php echo htmlspecialchars($app['pet_name']); ?></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-icon">👤</span>
+                                        <span class="detail-label">Applicant:</span>
+                                        <span><?php echo htmlspecialchars($app['caregiver_name']); ?></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-icon">📅</span>
+                                        <span class="detail-label">Date:</span>
+                                        <span><?php echo date('M d, Y - g:i A', strtotime($app['start_time'])); ?></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-icon">💰</span>
+                                        <span class="detail-label">Payment:</span>
+                                        <span>$<?php echo number_format($app['price'], 2); ?></span>
+                                    </div>
+                                </div>
+
+                                <form method="POST" class="job-actions">
+                                    <input type="hidden" name="job_id" value="<?php echo $app['job_id']; ?>">
+                                    <button type="submit" name="action" value="accept" class="action-btn btn-accept">Accept Application</button>
+                                    <button type="submit" name="action" value="decline" class="action-btn btn-decline">Decline</button>
                                 </form>
                             </div>
                         <?php endforeach; ?>
@@ -506,6 +561,55 @@
             });
         }
     });
+
+    function openPetModal() {
+    document.getElementById('petModal').classList.remove('hidden');
+}
+
+function closePetModal() {
+    document.getElementById('petModal').classList.add('hidden');
+    document.getElementById('petForm').reset();
+}
+
+async function submitPet(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.append('add_pet_ajax', '1');
+    
+    try {
+        const response = await fetch('JobController.php', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.success) {
+            const select = document.querySelector('select[name="pet_id"]');
+            const option = new Option(result.pet_name + ' (' + result.pet_breed + ')', result.pet_id, true, true);
+            select.add(option);
+            closePetModal();
+        } else {
+            alert(result.message || 'Failed to add pet');
+        }
+    } catch (error) {
+        alert('Error adding pet');
+    }
+}
 </script>
+<!-- Pet Modal -->
+<div id="petModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Add New Pet</h2>
+        <form id="petForm" onsubmit="submitPet(event)">
+            <div class="form-grid">
+                <div class="form-group"><label class="form-label">Name *</label><input type="text" name="pet_name" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">Breed *</label><input type="text" name="pet_breed" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">Age *</label><input type="number" name="pet_age" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">Gender *</label><select name="pet_gender" class="form-select" required><option value="">Choose...</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Pet</button>
+                <button type="button" onclick="closePetModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

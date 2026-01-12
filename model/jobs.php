@@ -191,18 +191,19 @@ function getCompletedJobsCount($userId) {
 function applyForJob($job_id, $caregiver_id) {
     global $pdo;
     
-    // Check if job is still open
-    $checkQuery = "SELECT caregiver_id FROM Job WHERE id = :job_id AND caregiver_id IS NULL AND status = 'Open'";
+    // Check if job is still open or has no caregiver
+    $checkQuery = "SELECT caregiver_id, status FROM Job WHERE id = :job_id";
     $checkStmt = $pdo->prepare($checkQuery);
     $checkStmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
     $checkStmt->execute();
     
-    if ($checkStmt->rowCount() === 0) {
-        // Job is already taken
+    $job = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$job || ($job['caregiver_id'] !== null && $job['status'] === 'Confirmed')) {
         return false;
     }
     
-    // Update job with caregiver_id
+    // Update job with caregiver_id and set to Pending (waiting owner approval)
     $updateQuery = "UPDATE Job SET caregiver_id = :caregiver_id, status = 'Pending' WHERE id = :job_id";
     $updateStmt = $pdo->prepare($updateQuery);
     $updateStmt->bindParam(':caregiver_id', $caregiver_id, PDO::PARAM_INT);
@@ -211,13 +212,15 @@ function applyForJob($job_id, $caregiver_id) {
     return $updateStmt->execute();
 }
 
-function createOpenJob($user_id, $pet_id, $service_type, $start_time, $end_time, $price, $location = '') {
+function createJob($user_id, $pet_id, $service_type, $start_time, $end_time, $price, $location = '', $caregiver_id = null) {
     global $pdo;
     
+    $status = $caregiver_id ? 'Pending' : 'Open';
+    
     $query = "INSERT INTO Job 
-              (user_id, pet_id, service_type, start_time, end_time, price, location, status, payment_id) 
+              (user_id, pet_id, service_type, start_time, end_time, price, location, status, caregiver_id, payment_id) 
               VALUES 
-              (:user_id, :pet_id, :service_type, :start_time, :end_time, :price, :location, 'Open', NULL)";
+              (:user_id, :pet_id, :service_type, :start_time, :end_time, :price, :location, :status, :caregiver_id, NULL)";
     
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
@@ -227,7 +230,51 @@ function createOpenJob($user_id, $pet_id, $service_type, $start_time, $end_time,
     $stmt->bindParam(':end_time', $end_time);
     $stmt->bindParam(':price', $price);
     $stmt->bindParam(':location', $location);
+    $stmt->bindParam(':status', $status);
+    $stmt->bindParam(':caregiver_id', $caregiver_id, PDO::PARAM_INT);
     
     return $stmt->execute();
+}
+
+function declineJobAsCaregiver($job_id) {
+    global $pdo;
+    
+    $query = "UPDATE Job SET caregiver_id = NULL, status = 'Open' WHERE id = :job_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+function declineJobAsOwner($job_id) {
+    global $pdo;
+    
+    $query = "UPDATE Job SET caregiver_id = NULL, status = 'Open' WHERE id = :job_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+function getJobApplications($owner_id) {
+    global $pdo;
+    
+    $query = "SELECT 
+              j.id as job_id,
+              j.service_type,
+              j.start_time,
+              j.price,
+              CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as caregiver_name,
+              u.id as caregiver_id,
+              p.name as pet_name
+              FROM Job j
+              JOIN users u ON j.caregiver_id = u.id
+              JOIN Pet p ON j.pet_id = p.id
+              WHERE j.user_id = :owner_id 
+              AND j.status = 'Pending'
+              ORDER BY j.start_time ASC";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':owner_id', $owner_id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>

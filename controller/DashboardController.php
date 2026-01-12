@@ -50,7 +50,11 @@ $pets = [];
 $stats['earnings'] = 0;
 $stats['pending_jobs'] = 0;
 $stats['total_pets'] = 0;
-
+if($role === 'admin'){
+    // Redirect admin users to admin dashboard
+    header('Location: AdminDashboardController.php');
+    exit;
+}
 if ($role === 'caregiver') {
     // Caregiver dashboard data
     $stats['earnings'] = getCaregiverEarnings($current_user_id);

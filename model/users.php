@@ -64,11 +64,12 @@
     }
 
     function getAllCaregivers() {
-        $query = "SELECT * FROM " . $this->table . " WHERE role = 'caregiver'";
-        $stmt = $this->conn->prepare($query);
+        global $pdo;
+        $query = "SELECT * FROM users WHERE role = 'caregiver'";
+        $stmt = $pdo->prepare($query);
         $stmt->execute();
         
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function getAllpetOwners() {
