@@ -3,17 +3,15 @@
 
 session_start();
 require_once '../model/connection.php';
-require_once '../model/AdminModel.php';
+require_once '../model/adminModel.php';
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'ADMIN') {
+    header("Location: ../login.html");
     exit();
 }
 
-$database = new Database();
-$conn = $database->getConnection();
-$adminModel = new AdminModel($conn);
+$conn = $pdo;
 
 $currentUser = array(
     'id' => $_SESSION['user_id'],
@@ -22,10 +20,10 @@ $currentUser = array(
     'role' => $_SESSION['role']
 );
 
-// Get dashboard statistics
-$stats = $adminModel->getDashboardStats();
-$recentActivity = $adminModel->getRecentActivity(10);
+// Get dashboard statistics using functions
+$stats = getDashboardStats($conn);
+$recentActivity = getRecentActivity($conn, 10);
 
 // Include the view
-include '../view/admin_dashboard_view.php';
+include '../views/admin_dashboard_view.php';
 ?>
