@@ -257,7 +257,7 @@
                                         <option value="">Open for applications</option>
                                         <?php foreach ($available_caregivers as $caregiver): ?>
                                             <option value="<?php echo $caregiver['id']; ?>">
-                                                <?php echo htmlspecialchars($caregiver['name']); ?>
+                                                <?php echo htmlspecialchars($caregiver['first_name'] . " " . $caregiver['last_name']); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -526,6 +526,7 @@
 </div>
 </div>
 <script>
+    document.getElementById('addPetForm').addEventListener('submit', submitPet);
     function toggleJobForm() {
         const form = document.getElementById('jobForm');
         const btn = document.getElementById('toggleBtn');
@@ -589,7 +590,8 @@ async function submitPet(e) {
             alert(result.message || 'Failed to add pet');
         }
     } catch (error) {
-        alert('Error adding pet');
+
+        alert(error.message || 'An error occurred');
     }
 }
 </script>

@@ -2,7 +2,7 @@
 // controller/AdminDashboardController.php
 
 session_start();
-require_once '../config/database.php';
+require_once '../model/connection.php';
 require_once '../model/AdminModel.php';
 
 // Check if user is logged in and is admin

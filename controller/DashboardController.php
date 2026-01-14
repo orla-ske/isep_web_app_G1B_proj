@@ -50,7 +50,7 @@ $pets = [];
 $stats['earnings'] = 0;
 $stats['pending_jobs'] = 0;
 $stats['total_pets'] = 0;
-if($role === 'admin'){
+if($role === 'admin' || $role === 'administrator' || $role === 'Admin' || $role === 'ADMIN') {
     // Redirect admin users to admin dashboard
     header('Location: AdminDashboardController.php');
     exit;

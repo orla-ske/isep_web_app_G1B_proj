@@ -63,8 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-  // --- FORGOT PASSWORD (请求重置) ---
-  // --- FORGOT PASSWORD ---
 elseif ($action === 'forgot_password') {
     if (empty($email)) {
       echo json_encode(['status' => 'error', 'message' => 'Please enter your email address.']);
