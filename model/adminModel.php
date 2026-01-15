@@ -1,7 +1,6 @@
 <?php
 // model/AdminModel.php
 require_once '../model/connection.php';
-require '../model/users.php';
 /**
  * Get comprehensive dashboard statistics
  * @param PDO $conn Database connection
@@ -252,42 +251,42 @@ function deleteUser($conn, $user_id) {
     return $stmt->execute();
 }
 
-/**
- * Get user by ID
- * @param PDO $conn Database connection
- * @param int $user_id User ID
- * @return array|null User data
- */
-function getUserById($conn, $user_id) {
-    $query = "SELECT * FROM users WHERE id = :id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':id', $user_id);
-    $stmt->execute();
+// /**
+//  * Get user by ID
+//  * @param PDO $conn Database connection
+//  * @param int $user_id User ID
+//  * @return array|null User data
+//  */
+// function getUserById($conn, $user_id) {
+//     $query = "SELECT * FROM users WHERE id = :id";
+//     $stmt = $conn->prepare($query);
+//     $stmt->bindParam(':id', $user_id);
+//     $stmt->execute();
     
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+//     return $stmt->fetch(PDO::FETCH_ASSOC);
+// }
 
-/**
- * Update user information
- * @param PDO $conn Database connection
- * @param int $user_id User ID
- * @param array $data User data to update
- * @return bool Success status
- */
-function updateUser($conn, $user_id, $data) {
-    $fields = array();
-    $params = array(':id' => $user_id);
+// /**
+//  * Update user information
+//  * @param PDO $conn Database connection
+//  * @param int $user_id User ID
+//  * @param array $data User data to update
+//  * @return bool Success status
+//  */
+// function updateUser($conn, $user_id, $data) {
+//     $fields = array();
+//     $params = array(':id' => $user_id);
     
-    foreach ($data as $key => $value) {
-        $fields[] = "$key = :$key";
-        $params[":$key"] = $value;
-    }
+//     foreach ($data as $key => $value) {
+//         $fields[] = "$key = :$key";
+//         $params[":$key"] = $value;
+//     }
     
-    $query = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
-    $stmt = $conn->prepare($query);
+//     $query = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
+//     $stmt = $conn->prepare($query);
     
-    return $stmt->execute($params);
-}
+//     return $stmt->execute($params);
+// }
 
 /**
  * Get all pets with owner information
