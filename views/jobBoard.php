@@ -282,7 +282,7 @@
                                         <option value="">Open for applications</option>
                                         <?php foreach ($available_caregivers as $caregiver): ?>
                                             <option value="<?php echo $caregiver['id']; ?>">
-                                                <?php echo htmlspecialchars($caregiver['name']); ?>
+                                                <?php echo htmlspecialchars($caregiver['first_name'] . " " . $caregiver['last_name']); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -306,6 +306,17 @@
                                 <div class="form-group">
                                     <label class="form-label">End Time *</label>
                                     <input type="time" name="end_time" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Service Type *</label>
+                                    <select name="service_type" class="form-select" required>
+                                        <option value="">Select service type...</option>
+                                        <option value="Dog Walking">Dog Walking</option>
+                                        <option value="Pet Sitting">Pet Sitting</option>
+                                        <option value="Day Care">Day Care</option>
+                                        <option value="Veterinary Visit">Veterinary Visit</option>
+                                    </select> 
                                 </div>
                             </div>
 
@@ -394,7 +405,7 @@
                         <?php foreach ($pending_applications as $app): ?>
                             <div class="job-card">
                                 <div class="job-header">
-                                    <div class="job-type"><?php echo htmlspecialchars($app['service_type']); ?></div>
+                                    <div class="job-type"><?php echo htmlspecialchars($app['service_type'] ?: 'Job'); ?></div>
                                     <span class="job-status status-pending">Pending Review</span>
                                 </div>
 
@@ -442,7 +453,7 @@
                         <?php foreach ($jobs as $job): ?>
                             <div class="job-card">
                                 <div class="job-header">
-                                    <div class="job-type"><?php echo htmlspecialchars($job['service_type']); ?></div>
+                                    <div class="job-type"><?php echo htmlspecialchars($job['service_type'] ?: 'Job'); ?></div>
                                     <?php if (isset($job['status'])): ?>
                                         <span class="job-status status-<?php echo strtolower($job['status'] ?? 'pending'); ?>">
                                             <?php echo htmlspecialchars($job['status'] ?? 'Pending'); ?>
@@ -562,6 +573,7 @@
 </div>
 </div>
 <script>
+    document.getElementById('addPetForm').addEventListener('submit', submitPet);
     function toggleJobForm() {
         const form = document.getElementById('jobForm');
         const btn = document.getElementById('toggleBtn');

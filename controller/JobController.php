@@ -23,11 +23,6 @@ $user_type = $currentUser['user_type'] ?? $currentUser['role'] ?? 'pet_owner';
 
 // Handle AJAX/POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle job actions (for caregivers)
-   if (isset($_POST['action']) && isset($_POST['job_id'])) {
-    $job_id = $_POST['job_id'];
-    $action = $_POST['action'];
-
     if (isset($_POST['add_pet_ajax'])) {
         $pet_data = [
             'owner_id' => $_SESSION['user_id'],
@@ -48,7 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     }
-    
+
+    // Handle job actions (for caregivers)
+   if (isset($_POST['action']) && isset($_POST['job_id'])) {
+    $job_id = $_POST['job_id'];
+    $action = $_POST['action'];
+
     if ($action === 'apply') {
         // Caregiver applying for an open job
         $result = applyForJob($job_id, $user_id);

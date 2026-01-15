@@ -2,18 +2,16 @@
 // controller/AdminUsersController.php
 
 session_start();
-require_once '../config/database.php';
-require_once '../model/AdminModel.php';
+require_once '../model/connection.php';
+require_once '../model/adminModel.php';
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'ADMIN') {
+    header("Location: ../login.html");
     exit();
 }
 
-$database = new Database();
-$conn = $database->getConnection();
-$adminModel = new AdminModel($conn);
+$conn = $pdo;
 
 $currentUser = array(
     'id' => $_SESSION['user_id'],
@@ -88,16 +86,16 @@ $limit = 20;
 $offset = ($page - 1) * $limit;
 
 // Get users
-$users = $adminModel->getAllUsers($search, $roleFilter, $limit, $offset);
-$totalUsers = $adminModel->getUserCount($search, $roleFilter);
+$users = getAllUsers($search, $roleFilter, $limit, $offset);
+$totalUsers = getUserCount($search, $roleFilter);
 $totalPages = ceil($totalUsers / $limit);
 
 // Get single user if editing
 $editUser = null;
 if (isset($_GET['edit'])) {
-    $editUser = $adminModel->getUserById(intval($_GET['edit']));
+    $editUser = getUserById(intval($_GET['edit']));
 }
 
 // Include the view
-include '../view/admin_users_view.php';
+include '../views/admin_users_view.php';
 ?>
