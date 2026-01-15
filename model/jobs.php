@@ -127,7 +127,7 @@ function getAverageRating($userId) {
     
     $query = "SELECT AVG(Stars) as avg_rating 
               FROM Rating 
-              WHERE Job_Agreement_id IN (
+              WHERE Job_id IN (
                   SELECT id 
                   FROM Job_Agreement 
                   WHERE Users_id = :user_id
@@ -146,7 +146,7 @@ function getTotalReviews($userId) {
     
     $query = "SELECT COUNT(*) as total_reviews 
               FROM Rating 
-              WHERE Job_Agreement_id IN (
+              WHERE Job_id IN (
                   SELECT id 
                   FROM Job_Agreement 
                   WHERE Users_id = :user_id

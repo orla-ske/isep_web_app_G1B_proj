@@ -573,7 +573,7 @@
 </div>
 </div>
 <script>
-    document.getElementById('addPetForm').addEventListener('submit', submitPet);
+
     function toggleJobForm() {
         const form = document.getElementById('jobForm');
         const btn = document.getElementById('toggleBtn');
@@ -668,16 +668,6 @@ async function submitPet(e) {
                 const location = card.dataset.location || '';
                 const breed = card.dataset.breed || '';
                 if (!location.includes(keyword) && !breed.includes(keyword)) {
-                    show = false;
-                }
-            }
-
-
-            if (show) {
-                const jobDate = new Date(card.dataset.date);
-                const jobDateOnly = new Date(jobDate.getTime() + jobDate.getTimezoneOffset() * 60000);
-                
-                if (jobDateOnly < today) {
                     show = false;
                 }
             }
