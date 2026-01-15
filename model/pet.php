@@ -109,5 +109,44 @@ class Pet {
         
         return $stmt->execute();
     }
+
+    public function updateFullProfile($data) {
+        $query = "UPDATE " . $this->table_name . " 
+                  SET name = :name, 
+                      breed = :breed, 
+                      age = :age, 
+                      gender = :gender, 
+                      weight = :weight, 
+                      height = :height, 
+                      color = :color, 
+                      vaccintation_status = :vaccination_status, 
+                      is_active = :is_active";
+        
+        // Only update photo if a new one is provided
+        if (!empty($data['photo_url'])) {
+            $query .= ", photo_url = :photo_url";
+        }
+
+        $query .= " WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        $stmt->bindParam(':name', $data['name']);
+        $stmt->bindParam(':breed', $data['breed']);
+        $stmt->bindParam(':age', $data['age'], PDO::PARAM_INT);
+        $stmt->bindParam(':gender', $data['gender']);
+        $stmt->bindParam(':weight', $data['weight']);
+        $stmt->bindParam(':height', $data['height']);
+        $stmt->bindParam(':color', $data['color']);
+        $stmt->bindParam(':vaccination_status', $data['vaccination_status']);
+        $stmt->bindParam(':is_active', $data['is_active']);
+        $stmt->bindParam(':id', $data['id'], PDO::PARAM_INT);
+
+        if (!empty($data['photo_url'])) {
+            $stmt->bindParam(':photo_url', $data['photo_url']);
+        }
+        
+        return $stmt->execute();
+    }
 }
 ?>

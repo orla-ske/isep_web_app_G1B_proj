@@ -349,6 +349,95 @@ $initial = strtoupper(substr($ownerName, 0, 1));
                 margin-bottom: 20px;
             }
         }
+
+        /* Edit Mode Styles */
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        #editBtn {
+            background: white;
+            color: #764ba2;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        #editBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+        }
+        
+        .cancel-btn {
+            background: #f7fafc;
+            color: #e53e3e;
+            border: 1px solid #fed7d7;
+        }
+
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        
+        .photo-overlay:hover {
+            background: rgba(0,0,0,0.7);
+        }
+
+        .form-input-inline {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: inherit;
+            font-weight: inherit;
+            font-family: inherit;
+            color: #2d3748;
+            width: 200px;
+        }
+        
+        .form-input-inline-small {
+            width: 80px;
+            text-align: center;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 4px;
+            font-size: inherit;
+        }
+
+        .form-input-static {
+            display: block;
+            padding: 16px 20px;
+            background-color: #dbeaf8;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            color: #4a5568;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -381,92 +470,185 @@ $initial = strtoupper(substr($ownerName, 0, 1));
 
     <!-- Main Content -->
     <main class="main-content">
-        
-        <!-- Hero Card -->
-        <div class="hero-card">
-            <div class="pet-hero-image-container">
-                <?php if (!empty($pet->photo_url)): ?>
-                    <img src="<?php echo htmlspecialchars($pet->photo_url); ?>" alt="<?php echo htmlspecialchars($pet->name); ?>" class="pet-hero-image">
-                <?php else: ?>
-                    <div class="pet-hero-image" style="display:flex;align-items:center;justify-content:center;font-size:3rem;color:#764ba2;background:#f0f4f8;">
-                        <?php echo strtoupper(substr($pet->name, 0, 1)); ?>
-                    </div>
-                <?php endif; ?>
-                <div class="slider-indicator">
-                    <?php echo htmlspecialchars($pet->is_active === 'yes' ? 'Active' : 'Inactive'); ?>
-                </div>
+        <!-- Messages -->
+        <?php if (isset($success_message)): ?>
+            <div style="background: #d1fae5; color: #065f46; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <?php echo htmlspecialchars($success_message); ?>
             </div>
+        <?php endif; ?>
+        <?php if (isset($error_message)): ?>
+            <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" enctype="multipart/form-data" id="profileForm">
+            <input type="hidden" name="update_pet" value="1">
+            <input type="hidden" name="pet_id" value="<?php echo $pet->id; ?>">
             
-            <div class="hero-text">
-                <h1>Hello, I'm <?php echo htmlspecialchars($pet->name); ?>! 🐾</h1>
-                <p>
-                    I'm a <?php echo htmlspecialchars($pet->age); ?>-year-old <strong><?php echo htmlspecialchars($pet->breed); ?></strong>. 
-                    I weigh <strong><?php echo htmlspecialchars($pet->weight); ?>kg</strong> and bring joy to everyone I meet.
-                    <br><br>
-                    My owner loves me very much and keeps my vaccination status: 
-                    <span style="color: <?php echo strpos(strtolower($pet->vaccintation_status), 'up to date') !== false ? '#48bb78' : '#e53e3e'; ?>; font-weight: bold;">
-                        <?php echo htmlspecialchars($pet->vaccintation_status); ?>
-                    </span>.
-                </p>
-            </div>
-        </div>
-
-        <!-- Profile Details -->
-        <div class="profile-section">
-            <h2>Pet Profile Details</h2>
-
-            <div class="details-grid">
-                <!-- Name -->
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->name); ?>" readonly>
+            <!-- Hero Card -->
+            <div class="hero-card">
+                <div class="edit-controls" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+                    <button type="button" id="editBtn" onclick="toggleEditMode()" class="action-btn">
+                        ✏️ Edit Profile
+                    </button>
+                    <div id="saveCancelBtns" style="display: none; gap: 10px; align-items: center;">
+                        <div id="edit-error-msg" style="color: #e53e3e; font-weight: bold; font-size: 13px; display: none; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 8px;"></div>
+                        <button type="submit" class="action-btn save-btn">💾 Save</button>
+                        <button type="button" onclick="cancelEdit()" class="action-btn cancel-btn">✕ Cancel</button>
+                    </div>
                 </div>
 
-                <!-- Breed (Mapped to Username field in design) -->
-                <div class="form-group">
-                    <label>Breed</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->breed); ?>" readonly>
-                </div>
+                <div class="pet-hero-image-container">
+                    <div class="image-wrapper" style="position: relative; width: 200px; height: 200px; border-radius: 50%;">
+                        <?php if (!empty($pet->photo_url)): ?>
+                            <img src="<?php echo htmlspecialchars($pet->photo_url); ?>" id="petImagePreview" alt="<?php echo htmlspecialchars($pet->name); ?>" class="pet-hero-image">
+                        <?php else: ?>
+                            <div class="pet-hero-image" id="petPlaceholder" style="display:flex;align-items:center;justify-content:center;font-size:3rem;color:#764ba2;background:#f0f4f8;">
+                                <?php echo strtoupper(substr($pet->name, 0, 1)); ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- Photo Upload Overlay (Visible in Edit Mode) -->
+                        <div id="photoOverlay" class="photo-overlay" onclick="document.getElementById('photoInput').click()">
+                            <span>📷 Change Photo</span>
+                        </div>
+                        <input type="file" name="photo" id="photoInput" style="display: none;" accept="image/*" onchange="previewImage(this)">
+                    </div>
 
-                <!-- Age -->
-                <div class="form-group">
-                    <label>Age</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->age); ?> years" readonly>
+                    <div class="slider-indicator">
+                        <span class="view-field"><?php echo htmlspecialchars($pet->is_active === 'yes' ? 'Active' : 'Inactive'); ?></span>
+                        <select name="is_active" class="edit-field" style="display: none; border: none; background: transparent; font-weight: bold; color: #764ba2; text-align: center; font-size: 14px; width: 100%;">
+                            <option value="yes" <?php echo $pet->is_active === 'yes' ? 'selected' : ''; ?>>Active</option>
+                            <option value="no" <?php echo $pet->is_active !== 'yes' ? 'selected' : ''; ?>>Inactive</option>
+                        </select>
+                    </div>
                 </div>
-
-                <!-- Gender -->
-                <div class="form-group">
-                    <label>Gender</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->gender); ?>" readonly>
-                </div>
-
-                <!-- Weight -->
-                <div class="form-group">
-                    <label>Weight</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->weight); ?> kg" readonly>
-                </div>
-
-                <!-- Height -->
-                <div class="form-group">
-                    <label>Height</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->height); ?> cm" readonly>
-                </div>
-
-                <!-- Color -->
-                <div class="form-group">
-                    <label>Color</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->color); ?>" readonly>
-                </div>
-
-                <!-- Vaccination -->
-                <div class="form-group">
-                    <label>Vaccination Status</label>
-                    <input type="text" class="form-input" value="<?php echo htmlspecialchars($pet->vaccintation_status); ?>" readonly>
+                
+                <div class="hero-text">
+                    <h1>Hello, I'm <span class="view-field"><?php echo htmlspecialchars($pet->name); ?></span><input type="text" name="name" class="edit-field form-input-inline" value="<?php echo htmlspecialchars($pet->name); ?>" style="display: none;">! 🐾</h1>
+                    <p>
+                        I'm a <span class="view-field"><?php echo htmlspecialchars($pet->age); ?></span><input type="number" name="age" class="edit-field form-input-inline-small" value="<?php echo htmlspecialchars($pet->age); ?>" style="display: none;">-year-old 
+                        <strong><span class="view-field"><?php echo htmlspecialchars($pet->breed); ?></span><input type="text" name="breed" class="edit-field form-input-inline" value="<?php echo htmlspecialchars($pet->breed); ?>" style="display: none;"></strong>. 
+                        <br><br>
+                        My owner loves me very much and keeps my vaccination status: 
+                        <span class="view-field" style="color: <?php echo strpos(strtolower($pet->vaccintation_status ?? ''), 'up to date') !== false ? '#48bb78' : '#e53e3e'; ?>; font-weight: bold;">
+                            <?php echo htmlspecialchars($pet->vaccintation_status); ?>
+                        </span>
+                        <input type="text" name="vaccination_status" class="edit-field form-input-inline" value="<?php echo htmlspecialchars($pet->vaccintation_status); ?>" style="display: none;">.
+                    </p>
                 </div>
             </div>
-        </div>
 
+            <div class="profile-section">
+                <h2>Pet Profile Details</h2>
+
+                <div class="details-grid">
+
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <span class="view-field form-input-static"><?php echo htmlspecialchars($pet->gender); ?></span>
+                        <select name="gender" class="edit-field form-input" style="display: none;">
+                            <option value="Male" <?php echo $pet->gender === 'Male' ? 'selected' : ''; ?>>Male</option>
+                            <option value="Female" <?php echo $pet->gender === 'Female' ? 'selected' : ''; ?>>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <span class="view-field form-input-static"><?php echo htmlspecialchars($pet->weight); ?> kg</span>
+                        <input type="number" step="0.1" name="weight" class="edit-field form-input" value="<?php echo htmlspecialchars($pet->weight); ?>" style="display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Height (cm)</label>
+                        <span class="view-field form-input-static"><?php echo htmlspecialchars($pet->height); ?> cm</span>
+                        <input type="number" step="0.1" name="height" class="edit-field form-input" value="<?php echo htmlspecialchars($pet->height); ?>" style="display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Color</label>
+                        <span class="view-field form-input-static"><?php echo htmlspecialchars($pet->color); ?></span>
+                        <input type="text" name="color" class="edit-field form-input" value="<?php echo htmlspecialchars($pet->color); ?>" style="display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vaccination Details</label>
+                        <span class="view-field form-input-static"><?php echo htmlspecialchars($pet->vaccintation_status); ?></span>
+                        
+                        <select name="vaccination_status" id="vaccinationSelect" class="edit-field form-input" style="display: none;" onchange="updateHeroVaccination(this.value)">
+                            <option value="">Select Status...</option>
+                            <option value="Up to date" <?php echo strtolower($pet->vaccintation_status ?? '') === 'up to date' ? 'selected' : ''; ?>>Up to date</option>
+                            <option value="Expired" <?php echo strtolower($pet->vaccintation_status ?? '') === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                        </select>
+                        
+                    </div>
+                </div>
+            </div>
+        </form>
     </main>
+
+    <script>
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            const name = document.querySelector('input[name="name"]').value.trim();
+            const breed = document.querySelector('input[name="breed"]').value.trim();
+            const age = document.querySelector('input[name="age"]').value.trim();
+            const vaccStatus = document.getElementById('vaccinationSelect').value;
+            const errorMsg = document.getElementById('edit-error-msg');
+
+
+            errorMsg.style.display = 'none';
+
+            if (!name || !breed || !age || !vaccStatus) {
+                e.preventDefault();
+                errorMsg.innerText = '⚠️ Please fill in all required fields (Name, Breed, Age, Vaccination)';
+                errorMsg.style.display = 'block';
+                return false;
+            }
+        });
+
+        function updateHeroVaccination(val) {
+            const heroInput = document.querySelector('input[name="vaccination_status"]'); 
+            if(heroInput) heroInput.value = val;
+        }
+
+        function toggleEditMode() {
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveCancelBtns').style.display = 'flex';
+            
+            document.querySelectorAll('.view-field').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.edit-field').forEach(el => el.style.display = 'inline-block');
+            document.querySelectorAll('.form-group .edit-field').forEach(el => el.style.display = 'block'); 
+            
+            document.getElementById('photoOverlay').style.display = 'flex';
+        }
+
+        function cancelEdit() {
+            location.reload();
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('petImagePreview');
+                    const placeholder = document.getElementById('petPlaceholder');
+                    
+                    if (img) {
+                        img.src = e.target.result;
+                    } else if (placeholder) {
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.id = 'petImagePreview';
+                        newImg.className = 'pet-hero-image';
+                        newImg.alt = 'New Photo';
+                        placeholder.parentNode.replaceChild(newImg, placeholder);
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
 </body>
 </html>

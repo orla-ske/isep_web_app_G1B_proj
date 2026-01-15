@@ -205,16 +205,41 @@
             </div>
 
             <div class="jobs-container">
-                <!-- Caregiver Search -->
+                <!-- Caregiver Search & Filter -->
                 <?php if ($user_type === 'caregiver'): ?>
-                    <div style="margin-bottom: 30px;">
-                        <form method="GET" action="" style="display: flex; gap: 10px;">
-                            <input type="text" name="search" placeholder="Search jobs by location, service, or breed..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>" style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #E2E8F0; font-size: 16px;">
-                            <button type="submit" class="btn btn-primary">Search</button>
-                            <?php if(isset($_GET['search'])): ?>
-                                <a href="JobController.php" class="btn btn-secondary">Clear</a>
-                            <?php endif; ?>
-                        </form>
+                    <div style="margin-bottom: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; color: #1e293b;">Find Jobs</h3>
+                            <span style="font-size: 12px; color: #64748b;">Results update automatically</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <!-- Text Search -->
+                            <div>
+                                <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Keywords</label>
+                                <input type="text" id="filter-keyword" oninput="applyFilters()" placeholder="Search location, breed..." 
+                                       style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                            </div>
+                            
+                            <!-- Service Type Filter -->
+                            <div>
+                                <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Service Type</label>
+                                <select id="filter-service" onchange="applyFilters()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                                    <option value="all">All Services</option>
+                                    <option value="Dog Walking">Dog Walking</option>
+                                    <option value="Pet Sitting">Pet Sitting</option>
+                                    <option value="Grooming">Grooming</option>
+                                    <option value="Boarding">Boarding</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Filter -->
+                            <div>
+                                <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Date</label>
+                                <input type="date" id="filter-date" onchange="applyFilters()" min="<?php echo date('Y-m-d'); ?>"
+                                       style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                            </div>
+                        </div>
                     </div>
                 <?php endif; ?>
 
@@ -299,9 +324,14 @@
                         <p>Browse and apply for open pet care jobs</p>
                     </div>
                     
-                    <div class="jobs-grid">
+                    <div class="jobs-grid" id="jobs-grid">
                         <?php foreach ($open_jobs as $job): ?>
-                            <div class="job-card">
+                            <div class="job-card" 
+                                 data-service="<?php echo htmlspecialchars($job['service_type']); ?>" 
+                                 data-date="<?php echo date('Y-m-d', strtotime($job['start_time'])); ?>"
+                                 data-location="<?php echo htmlspecialchars(strtolower($job['location'] ?? $job['address'])); ?>"
+                                 data-breed="<?php echo htmlspecialchars(strtolower($job['breed'])); ?>">
+                                 
                                 <div class="job-header">
                                     <div class="job-type"><?php echo htmlspecialchars($job['service_type']); ?></div>
                                     <span class="job-status status-open">Open</span>
@@ -323,8 +353,13 @@
                                 <div class="job-details">
                                     <div class="detail-row">
                                         <span class="detail-icon">📅</span>
-                                        <span class="detail-label">Date:</span>
+                                        <span class="detail-label">Start:</span>
                                         <span><?php echo date('M d, Y - g:i A', strtotime($job['start_time'])); ?></span>
+                                    </div>
+                                     <div class="detail-row">
+                                        <span class="detail-icon">🏁</span>
+                                        <span class="detail-label">End:</span>
+                                        <span><?php echo date('M d, Y - g:i A', strtotime($job['end_time'])); ?></span>
                                     </div>
                                     <div class="detail-row">
                                         <span class="detail-icon">📍</span>
@@ -338,7 +373,8 @@
                                     </div>
                                 </div>
 
-                                <form method="POST" class="job-actions">
+                                <form method="POST" class="job-actions" onsubmit="return checkOverlap(event, '<?php echo $job['start_time']; ?>', '<?php echo $job['end_time']; ?>')">
+                                    <div class="overlap-error" style="width: 100%; color: #e53e3e; font-size: 13px; font-weight: bold; margin-bottom: 8px; display: none; background: #fee2e2; padding: 8px; border-radius: 8px;"></div>
                                     <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
                                     <button type="submit" name="action" value="apply" class="action-btn btn-apply">Apply for Job</button>
                                 </form>
@@ -589,11 +625,98 @@ async function submitPet(e) {
             alert(result.message || 'Failed to add pet');
         }
     } catch (error) {
-        alert('Error adding pet');
-    }
+    console.error('详细错误:', error);
+    alert('Error: ' + error.message); 
 }
-</script>
-<!-- Pet Modal -->
+                }
+
+
+    function applyFilters() {
+        const keyword = document.getElementById('filter-keyword').value.toLowerCase();
+        const service = document.getElementById('filter-service').value;
+        const selectedDateStr = document.getElementById('filter-date').value;
+
+        const cards = document.querySelectorAll('.job-card[data-service]');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
+        cards.forEach(card => {
+            let show = true;
+            
+
+            if (service !== 'all' && card.dataset.service !== service) {
+                show = false;
+            }
+
+            if (selectedDateStr && card.dataset.date !== selectedDateStr) {
+                show = false;
+            }
+
+            if (keyword) {
+                const location = card.dataset.location || '';
+                const breed = card.dataset.breed || '';
+                if (!location.includes(keyword) && !breed.includes(keyword)) {
+                    show = false;
+                }
+            }
+
+
+            if (show) {
+                const jobDate = new Date(card.dataset.date);
+                const jobDateOnly = new Date(jobDate.getTime() + jobDate.getTimezoneOffset() * 60000);
+                
+                if (jobDateOnly < today) {
+                    show = false;
+                }
+            }
+
+            card.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    // --- OVERLAP CHECK LOGIC ---
+    // Inject PHP data into JS
+    const assignedJobs = <?php echo json_encode($user_type === 'caregiver' ? $jobs : []); ?>;
+
+    function checkOverlap(event, newStartStr, newEndStr) {
+        const newStart = new Date(newStartStr);
+        const newEnd = new Date(newEndStr);
+
+        // Find error container inside the submitted form
+        const form = event.target;
+        const errorDiv = form.querySelector('.overlap-error');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.innerText = '';
+        }
+
+        for (const job of assignedJobs) {
+            // Skip jobs that are not confirmed/pending (though usually assignedJobs contains only those)
+            if (job.status === 'Completed' || job.status === 'Declined') continue;
+
+            const currentStart = new Date(job.start_time);
+            // If end_time is missing from DB for some reason, assume 1 hour duration
+            const currentEnd = job.end_time ? new Date(job.end_time) : new Date(currentStart.getTime() + 60 * 60 * 1000);
+
+            // Check overlap
+            if (newStart < currentEnd && newEnd > currentStart) {
+                event.preventDefault();
+                
+                if (errorDiv) {
+                    const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const msg = `⚠️ Time Conflict! You are busy from ${formatTime(currentStart)} to ${formatTime(currentEnd)}.`;
+                    errorDiv.innerText = msg;
+                    errorDiv.style.display = 'block';
+                }
+                
+                return false;
+            }
+        }
+        
+        // No overlap
+        return true;
+    }
+</script><!-- Pet Modal -->
 <div id="petModal" class="modal hidden">
     <div class="modal-content">
         <h2>Add New Pet</h2>

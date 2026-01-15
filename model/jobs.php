@@ -33,6 +33,7 @@ function getCaregiverUpcomingJobs($caregiver_id) {
               j.id,
               j.service_type,
               j.start_time,
+              j.end_time,
               j.status,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as client_name, 
               u.address, 
@@ -57,7 +58,10 @@ function getCaregiverUpcomingJobs($caregiver_id) {
 function getOwnerJobs($user_id) {
     global $pdo;
     
+    // 注意：不再需要 JOIN Job_Agreement 了！
+    // 直接取 j.id 即可
     $query = "SELECT 
+              j.id as job_id, 
               j.service_type,
               j.start_time,
               j.price,
@@ -98,6 +102,7 @@ function getOpenJobs($exclude_caregiver_id) {
               j.id,
               j.service_type,
               j.start_time,
+              j.end_time,
               j.price,
               j.location as address,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
