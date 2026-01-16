@@ -8,18 +8,18 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once '../model/connection.php';
-require_once '../model/pet.php';
+require_once '../model/pets.php';
 
 // $pdo is defined in connection.php
-$pet = new Pet($pdo);
 
 // Handle POST request for updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_pet'])) {
     $pet_id = $_POST['pet_id'];
     
     // Check ownership or admin rights (basic check)
-    if ($pet->getPetById($pet_id)) {
-        if ($pet->Users_id == $_SESSION['user_id']) {
+    $petData = getPetById($pet_id);
+    if ($petData) {
+        if ($petData['Users_id'] == $_SESSION['user_id']) {
             
             // Collect data
             $updateData = [
@@ -51,21 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_pet'])) {
                     $uploadPath = $uploadDir . $newFileName;
                     
                     if (move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPath)) {
-                        $updateData['photo_url'] = $uploadPath; // Relative path for DB could be handled differently depending on setup
-                        // Correct path for display if needed: 'uploads/pets/' . $newFileName
-                        // But let's stick to what was likely used. The view uses existing URLs.
-                        // Assuming current URLs are relative or absolute. Let's save the relative path from project root or similar.
-                        // The view uses `../uploads/...` or `http...`.
-                        // Let's save `../uploads/pets/filename` to match view context if it runs from controller.
-                        // Actually, standard practice is to save from root.
-                        // Let's save: `../uploads/pets/` + filename.
+                        $updateData['photo_url'] = $uploadPath; 
                     }
                 }
             }
 
-            if ($pet->updateFullProfile($updateData)) {
+            if (updateFullPetProfile($updateData)) {
                 // Refresh data
-                $pet->getPetById($pet_id);
+                $petData = getPetById($pet_id);
                 $success_message = "Profile updated successfully!";
             } else {
                 $error_message = "Failed to update profile.";
@@ -78,7 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_pet'])) {
         $error_message = "Pet not found.";
     }
 } else if (isset($_GET['id'])) {
-    if ($pet->getPetById($_GET['id'])) {
+    $petData = getPetById($_GET['id']);
+    if ($petData) {
         // Just loaded for view
     } else {
         echo "Pet not found.";
@@ -87,6 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_pet'])) {
 } else {
     echo "No pet ID specified.";
     exit;
+}
+
+// Prepare object for view
+if (isset($petData) && is_array($petData)) {
+    $pet = (object) $petData;
 }
 
 require_once '../views/pet_profile.php';
