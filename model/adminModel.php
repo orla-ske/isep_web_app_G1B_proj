@@ -1,6 +1,6 @@
 <?php
 // model/AdminModel.php
-require_once '../model/connection.php';
+
 /**
  * Get comprehensive dashboard statistics
  * @param PDO $conn Database connection
@@ -200,19 +200,31 @@ function getRecentActivity($conn, $limit = 10) {
 }
 
 /**
- * Get all users with pagination
+ * Get all users with pagination and statistics
  * @param PDO $conn Database connection
  * @param int $page Current page number
  * @param int $per_page Records per page
- * @return array Users data
+ * @return array Users data with statistics
  */
-function getUsers($conn, $page = 1, $per_page = 20) {
+function getUsersWithStats($conn, $page = 1, $per_page = 20) {
     $offset = ($page - 1) * $per_page;
     
-    $query = "SELECT id, first_name, last_name, email, role, phone, created_at, 
-                     city, address, postal_code
-              FROM users
-              ORDER BY created_at DESC
+    $query = "SELECT 
+                u.id, 
+                u.first_name, 
+                u.last_name, 
+                u.email, 
+                u.role, 
+                u.phone, 
+                u.created_at, 
+                u.city, 
+                u.address, 
+                u.postal_code,
+                (SELECT COUNT(*) FROM Pet WHERE Users_id = u.id) as total_pets,
+                (SELECT COUNT(*) FROM Job WHERE user_id = u.id) as job_count,
+                (SELECT COUNT(*) FROM Job WHERE caregiver_id = u.id) as caregiver_job_count
+              FROM users u
+              ORDER BY u.created_at DESC
               LIMIT :limit OFFSET :offset";
     
     $stmt = $conn->prepare($query);
@@ -221,6 +233,151 @@ function getUsers($conn, $page = 1, $per_page = 20) {
     $stmt->execute();
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get users with filters and statistics
+ * @param PDO $conn Database connection
+ * @param string $search Search term for name or email
+ * @param string $roleFilter Role filter
+ * @param int $page Current page number
+ * @param int $per_page Records per page
+ * @return array Users data with statistics
+ */
+function getUsersWithFilters($conn, $search = '', $roleFilter = '', $page = 1, $per_page = 20) {
+    $offset = ($page - 1) * $per_page;
+    
+    $query = "SELECT 
+                u.id, 
+                u.first_name, 
+                u.last_name, 
+                u.email, 
+                u.role, 
+                u.phone, 
+                u.created_at, 
+                u.city, 
+                u.address, 
+                u.postal_code,
+                (SELECT COUNT(*) FROM Pet WHERE Users_id = u.id) as total_pets,
+                (SELECT COUNT(*) FROM Job WHERE user_id = u.id) as job_count,
+                (SELECT COUNT(*) FROM Job WHERE caregiver_id = u.id) as caregiver_job_count
+              FROM users u
+              WHERE 1=1";
+    
+    $params = array();
+    
+    // Add search filter
+    if (!empty($search)) {
+        $query .= " AND (u.first_name LIKE :search 
+                    OR u.last_name LIKE :search 
+                    OR u.email LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    // Add role filter
+    if (!empty($roleFilter)) {
+        $query .= " AND u.role = :role";
+        $params[':role'] = $roleFilter;
+    }
+    
+    $query .= " ORDER BY u.created_at DESC
+                LIMIT :limit OFFSET :offset";
+    
+    $stmt = $conn->prepare($query);
+    
+    // Bind search and role parameters
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    // Bind pagination parameters
+    $stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get total users count with filters
+ * @param PDO $conn Database connection
+ * @param string $search Search term
+ * @param string $roleFilter Role filter
+ * @return int Total users count
+ */
+function getTotalUsersCount($conn, $search = '', $roleFilter = '') {
+    $query = "SELECT COUNT(*) as total FROM users WHERE 1=1";
+    
+    $params = array();
+    
+    if (!empty($search)) {
+        $query .= " AND (first_name LIKE :search 
+                    OR last_name LIKE :search 
+                    OR email LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    if (!empty($roleFilter)) {
+        $query .= " AND role = :role";
+        $params[':role'] = $roleFilter;
+    }
+    
+    $stmt = $conn->prepare($query);
+    
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return (int)($row['total'] ?? 0);
+}
+
+// /**
+//  * Get user by ID
+//  * @param PDO $conn Database connection
+//  * @param int $user_id User ID
+//  * @return array|null User data
+//  */
+// function getUserById($conn, $user_id) {
+//     $query = "SELECT * FROM users WHERE id = :id";
+//     $stmt = $conn->prepare($query);
+//     $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+//     $stmt->execute();
+    
+//     return $stmt->fetch(PDO::FETCH_ASSOC);
+// }
+
+/**
+ * Update user information
+ * @param PDO $conn Database connection
+ * @param int $user_id User ID
+ * @param array $data User data to update
+ * @return bool Success status
+ */
+function updateUserInfo($conn, $user_id, $data) {
+    $fields = array();
+    $params = array(':id' => $user_id);
+    
+    $allowedFields = ['first_name', 'last_name', 'email', 'phone', 'role', 'city', 'address', 'postal_code'];
+    
+    foreach ($data as $key => $value) {
+        if (in_array($key, $allowedFields)) {
+            $fields[] = "$key = :$key";
+            $params[":$key"] = $value;
+        }
+    }
+    
+    if (empty($fields)) {
+        return false;
+    }
+    
+    $query = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    
+    return $stmt->execute($params);
 }
 
 /**
@@ -251,51 +408,52 @@ function deleteUser($conn, $user_id) {
     return $stmt->execute();
 }
 
-// /**
-//  * Get user by ID
-//  * @param PDO $conn Database connection
-//  * @param int $user_id User ID
-//  * @return array|null User data
-//  */
-// function getUserById($conn, $user_id) {
-//     $query = "SELECT * FROM users WHERE id = :id";
-//     $stmt = $conn->prepare($query);
-//     $stmt->bindParam(':id', $user_id);
-//     $stmt->execute();
+/**
+ * Get user by ID
+ * @param PDO $conn Database connection
+ * @param int $user_id User ID
+ * @return array|null User data
+ */
+function getUserById($conn, $user_id) {
+    $query = "SELECT * FROM users WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':id', $user_id);
+    $stmt->execute();
     
-//     return $stmt->fetch(PDO::FETCH_ASSOC);
-// }
-
-// /**
-//  * Update user information
-//  * @param PDO $conn Database connection
-//  * @param int $user_id User ID
-//  * @param array $data User data to update
-//  * @return bool Success status
-//  */
-// function updateUser($conn, $user_id, $data) {
-//     $fields = array();
-//     $params = array(':id' => $user_id);
-    
-//     foreach ($data as $key => $value) {
-//         $fields[] = "$key = :$key";
-//         $params[":$key"] = $value;
-//     }
-    
-//     $query = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
-//     $stmt = $conn->prepare($query);
-    
-//     return $stmt->execute($params);
-// }
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
 /**
- * Get all pets with owner information
+ * Update user information
  * @param PDO $conn Database connection
+ * @param int $user_id User ID
+ * @param array $data User data to update
+ * @return bool Success status
+ */
+function updateUser($conn, $user_id, $data) {
+    $fields = array();
+    $params = array(':id' => $user_id);
+    
+    foreach ($data as $key => $value) {
+        $fields[] = "$key = :$key";
+        $params[":$key"] = $value;
+    }
+    
+    $query = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    
+    return $stmt->execute($params);
+}
+
+/**
+ * Get pets with filters
+ * @param PDO $conn Database connection
+ * @param string $search Search term
  * @param int $page Current page number
  * @param int $per_page Records per page
  * @return array Pets data
  */
-function getPets($conn, $page = 1, $per_page = 20) {
+function getPetsWithFilters($conn, $search = '', $page = 1, $per_page = 20) {
     $offset = ($page - 1) * $per_page;
     
     $query = "SELECT 
@@ -306,16 +464,246 @@ function getPets($conn, $page = 1, $per_page = 20) {
                 u.phone as owner_phone
               FROM Pet p
               LEFT JOIN users u ON p.Users_id = u.id
-              ORDER BY p.id DESC
-              LIMIT :limit OFFSET :offset";
+              WHERE 1=1";
+    
+    $params = array();
+    
+    if (!empty($search)) {
+        $query .= " AND (p.name LIKE :search 
+                    OR p.breed LIKE :search 
+                    OR u.first_name LIKE :search 
+                    OR u.last_name LIKE :search
+                    OR u.email LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    $query .= " ORDER BY p.id DESC
+                LIMIT :limit OFFSET :offset";
     
     $stmt = $conn->prepare($query);
+    
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
     $stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    
     $stmt->execute();
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+/**
+ * Get total pets count with filters
+ * @param PDO $conn Database connection
+ * @param string $search Search term
+ * @return int Total pets count
+ */
+function getTotalPetsCount($conn, $search = '') {
+    $query = "SELECT COUNT(*) as total FROM Pet p
+              LEFT JOIN users u ON p.Users_id = u.id
+              WHERE 1=1";
+    
+    $params = array();
+    
+    if (!empty($search)) {
+        $query .= " AND (p.name LIKE :search 
+                    OR p.breed LIKE :search 
+                    OR u.first_name LIKE :search 
+                    OR u.last_name LIKE :search
+                    OR u.email LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    $stmt = $conn->prepare($query);
+    
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return (int)($row['total'] ?? 0);
+}
+
+/**
+ * Update pet information
+ * @param PDO $conn Database connection
+ * @param int $pet_id Pet ID
+ * @param array $data Pet data to update
+ * @return bool Success status
+ */
+function updatePetInfo($conn, $pet_id, $data) {
+    $fields = array();
+    $params = array(':id' => $pet_id);
+    
+    $allowedFields = ['name', 'breed', 'age', 'gender', 'weight', 'height', 'color', 'vaccintation_status', 'is_active'];
+    
+    foreach ($data as $key => $value) {
+        if (in_array($key, $allowedFields)) {
+            $fields[] = "$key = :$key";
+            $params[":$key"] = $value;
+        }
+    }
+    
+    if (empty($fields)) {
+        return false;
+    }
+    
+    $query = "UPDATE Pet SET " . implode(', ', $fields) . " WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    
+    return $stmt->execute($params);
+}
+
+/**
+ * Get jobs with filters
+ * @param PDO $conn Database connection
+ * @param string $search Search term
+ * @param string $statusFilter Status filter
+ * @param int $page Current page number
+ * @param int $per_page Records per page
+ * @return array Jobs data
+ */
+function getJobsWithFilters($conn, $search = '', $statusFilter = '', $page = 1, $per_page = 20) {
+    $offset = ($page - 1) * $per_page;
+    
+    $query = "SELECT 
+                j.*,
+                owner.first_name as owner_first_name,
+                owner.last_name as owner_last_name,
+                owner.email as owner_email,
+                caregiver.first_name as caregiver_first_name,
+                caregiver.last_name as caregiver_last_name,
+                p.amount as payment_amount,
+                p.method as payment_method
+              FROM Job j
+              LEFT JOIN users owner ON j.user_id = owner.id
+              LEFT JOIN users caregiver ON j.caregiver_id = caregiver.id
+              LEFT JOIN Payment p ON j.Payment_id = p.id
+              WHERE 1=1";
+    
+    $params = array();
+    
+    if (!empty($search)) {
+        $query .= " AND (owner.first_name LIKE :search 
+                    OR owner.last_name LIKE :search 
+                    OR caregiver.first_name LIKE :search 
+                    OR caregiver.last_name LIKE :search
+                    OR j.service_type LIKE :search
+                    OR j.location LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    if (!empty($statusFilter)) {
+        $query .= " AND j.status = :status";
+        $params[':status'] = $statusFilter;
+    }
+    
+    $query .= " ORDER BY j.start_time DESC
+                LIMIT :limit OFFSET :offset";
+    
+    $stmt = $conn->prepare($query);
+    
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get total jobs count with filters
+ * @param PDO $conn Database connection
+ * @param string $search Search term
+ * @param string $statusFilter Status filter
+ * @return int Total jobs count
+ */
+function getTotalJobsCount($conn, $search = '', $statusFilter = '') {
+    $query = "SELECT COUNT(*) as total FROM Job j
+              LEFT JOIN users owner ON j.user_id = owner.id
+              LEFT JOIN users caregiver ON j.caregiver_id = caregiver.id
+              WHERE 1=1";
+    
+    $params = array();
+    
+    if (!empty($search)) {
+        $query .= " AND (owner.first_name LIKE :search 
+                    OR owner.last_name LIKE :search 
+                    OR caregiver.first_name LIKE :search 
+                    OR caregiver.last_name LIKE :search
+                    OR j.service_type LIKE :search
+                    OR j.location LIKE :search)";
+        $params[':search'] = '%' . $search . '%';
+    }
+    
+    if (!empty($statusFilter)) {
+        $query .= " AND j.status = :status";
+        $params[':status'] = $statusFilter;
+    }
+    
+    $stmt = $conn->prepare($query);
+    
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return (int)($row['total'] ?? 0);
+}
+
+/**
+ * Update job information
+ * @param PDO $conn Database connection
+ * @param int $job_id Job ID
+ * @param array $data Job data to update
+ * @return bool Success status
+ */
+function updateJobInfo($conn, $job_id, $data) {
+    $fields = array();
+    $params = array(':id' => $job_id);
+    
+    $allowedFields = ['status', 'price', 'service_type', 'start_time', 'end_time', 'location'];
+    
+    foreach ($data as $key => $value) {
+        if (in_array($key, $allowedFields)) {
+            $fields[] = "$key = :$key";
+            $params[":$key"] = $value;
+        }
+    }
+    
+    if (empty($fields)) {
+        return false;
+    }
+    
+    $query = "UPDATE Job SET " . implode(', ', $fields) . " WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    
+    return $stmt->execute($params);
+}
+
+// /**
+//  * Delete a job by ID
+//  * @param PDO $conn Database connection
+//  * @param int $job_id Job ID to delete
+//  * @return bool Success status
+//  */
+// function deleteJob($conn, $job_id) {
+//     $query = "DELETE FROM Job WHERE id = :id";
+//     $stmt = $conn->prepare($query);
+//     $stmt->bindParam(':id', $job_id, PDO::PARAM_INT);
+    
+//     return $stmt->execute();
+// }
 
 /**
  * Get pet by ID

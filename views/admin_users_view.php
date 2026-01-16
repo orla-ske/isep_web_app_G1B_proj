@@ -356,9 +356,7 @@
                 <a href="AdminUsersController.php" class="nav-link active">Users</a>
                 <a href="AdminPetsController.php" class="nav-link">Pets</a>
                 <a href="AdminJobsController.php" class="nav-link">Jobs</a>
-                <a href="AdminFAQController.php" class="nav-link">FAQ</a>
                 <a href="AdminForumController.php" class="nav-link">Forum</a>
-                <a href="AdminReportsController.php" class="nav-link">Reports</a>
                 <span class="admin-badge">⚡ Admin</span>
             </div>
         </div>

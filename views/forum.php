@@ -542,7 +542,7 @@
                         <a href="../controller/DashboardController.php" class="nav-link">Dashboard</a>
                         <a href="../logout.php" class="nav-link">Logout</a>
                     <?php else: ?>
-                        <a href="../login.php" class="login-btn">Login</a>
+                        <a href="../login.html" class="login-btn">Login</a>
                     <?php endif; ?>
                 </div>
             </div>

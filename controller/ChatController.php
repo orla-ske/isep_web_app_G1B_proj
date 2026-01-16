@@ -4,7 +4,7 @@ require_once '../model/Message.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../views/login.php');
+    header('Location: ../views/login.html');
     exit;
 }
 

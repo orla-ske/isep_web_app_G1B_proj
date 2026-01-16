@@ -43,7 +43,7 @@
 
       if (data.status === 'success') {
         alert(data.message);
-        window.location.href = 'login.php'; // 重置成功回登录页
+        window.location.href = 'login.html'; // 重置成功回登录页
       } else {
         alert(data.message);
       }
