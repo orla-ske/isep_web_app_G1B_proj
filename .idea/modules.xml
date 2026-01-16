@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/isep_web_app_G1B_proj.iml" filepath="$PROJECT_DIR$/.idea/isep_web_app_G1B_proj.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Petstride.iml" filepath="$PROJECT_DIR$/.idea/Petstride.iml" />
     </modules>
   </component>
 </project>

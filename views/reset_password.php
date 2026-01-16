@@ -48,7 +48,9 @@
         alert(data.message);
       }
     } catch (err) {
-      alert('System error');
+        console.error("🔥 捕获到的错误详情:", err); // 这行能让你在 Console 看到错误！
+        console.log("尝试访问的地址:", '../controllers/AuthController.php'); // 打印路径方便检查
+        alert('System error: ' + err.message); // 把错误信息弹出来
     }
   });
 </script>
