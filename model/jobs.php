@@ -1,4 +1,3 @@
-
 <?php
 require_once 'connection.php';
 
@@ -26,18 +25,23 @@ function getCaregiverEarnings($caregiver_id) {
     return $result['total'] ?? 0;
 }
 
-// ✅ FIXED: Uses user_id (not owner_id) to match your schema
+// ✅ FIXED: Include owner_id for chat functionality
 function getCaregiverUpcomingJobs($caregiver_id) {
     global $pdo;
     
     $query = "SELECT 
               j.id,
+              j.user_id as owner_id,
+              j.caregiver_id,
               j.service_type,
               j.start_time,
               j.end_time,
+              j.price,
+              j.location,
               j.status,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as client_name, 
               u.address, 
+              u.phone,
               p.name as pet_name, 
               p.breed, 
               p.photo_url
@@ -55,22 +59,28 @@ function getCaregiverUpcomingJobs($caregiver_id) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// ✅ FIXED: Uses user_id to match your schema (user_id is the pet owner)
+// ✅ FIXED: Complete query with all needed fields for messaging
 function getOwnerJobs($user_id) {
     global $pdo;
     
-    // 注意：不再需要 JOIN Job_Agreement 了！
-    // 直接取 j.id 即可
     $query = "SELECT 
-              j.id as job_id, 
+              j.id,
+              j.user_id as owner_id,
+              j.caregiver_id,
               j.service_type,
               j.start_time,
+              j.end_time,
               j.price,
+              j.location,
               j.status,
+              p.name as pet_name,
+              p.breed,
+              p.photo_url,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as caregiver_name, 
               u.phone 
               FROM Job j 
               LEFT JOIN users u ON j.caregiver_id = u.id 
+              LEFT JOIN Pet p ON j.pet_id = p.id
               WHERE j.user_id = :user_id 
               ORDER BY j.start_time DESC";
     
@@ -96,20 +106,24 @@ function updateJobStatus($job_id, $status) {
     return $stmt->execute();
 }
 
-function getOpenJobs($exclude_caregiver_id) {
+// ✅ FIXED: Include all fields for display and photo_url
+function getOpenJobs($exclude_caregiver_id = null) {
     global $pdo;
     
     $query = "SELECT 
               j.id,
+              j.user_id as owner_id,
               j.service_type,
               j.start_time,
               j.end_time,
               j.price,
-              j.location as address,
+              j.location,
               CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as owner_name, 
+              u.address,
               p.name as pet_name, 
               p.breed,
-              p.age as age
+              p.age,
+              p.photo_url
               FROM Job j 
               JOIN users u ON j.user_id = u.id 
               JOIN Pet p ON j.pet_id = p.id
@@ -130,8 +144,8 @@ function getAverageRating($userId) {
               FROM Rating 
               WHERE Job_id IN (
                   SELECT id 
-                  FROM Job_Agreement 
-                  WHERE Users_id = :user_id
+                  FROM Job 
+                  WHERE caregiver_id = :user_id
               )";
     
     $stmt = $pdo->prepare($query);
@@ -149,8 +163,8 @@ function getTotalReviews($userId) {
               FROM Rating 
               WHERE Job_id IN (
                   SELECT id 
-                  FROM Job_Agreement 
-                  WHERE Users_id = :user_id
+                  FROM Job 
+                  WHERE caregiver_id = :user_id
               )";
     
     $stmt = $pdo->prepare($query);
@@ -164,7 +178,7 @@ function getTotalReviews($userId) {
 function getTotalSpent($userId) {
     global $pdo;
     
-    $query = "SELECT SUM(price) as total_spent 
+    $query = "SELECT COALESCE(SUM(price), 0) as total_spent 
               FROM Job 
               WHERE user_id = :user_id 
               AND status = 'Completed'";
@@ -176,7 +190,6 @@ function getTotalSpent($userId) {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result['total_spent'] ?? 0;
 }
-
 
 function getCompletedJobsCount($userId) {
     global $pdo;

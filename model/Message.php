@@ -2,11 +2,13 @@
 require_once 'connection.php';
 
 // Get conversation between two users for a specific job
+
+// Get conversation between two users for a specific job
 function getJobMessages($job_id, $user_id) {
     global $pdo;
     
-    // First get the job details to find the other participant
-    $jobQuery = "SELECT owner_id, caregiver_id FROM Job WHERE id = :job_id";
+    // Fixed: Changed owner_id to user_id to match your schema
+    $jobQuery = "SELECT user_id, caregiver_id FROM Job WHERE id = :job_id";
     $stmt = $pdo->prepare($jobQuery);
     $stmt->bindParam(':job_id', $job_id, PDO::PARAM_INT);
     $stmt->execute();
@@ -14,16 +16,16 @@ function getJobMessages($job_id, $user_id) {
     
     if (!$job) return [];
     
-    // Determine the other user
-    $other_user_id = ($job['owner_id'] == $user_id) ? $job['caregiver_id'] : $job['owner_id'];
+    // Determine the other user - fixed: user_id instead of owner_id
+    $other_user_id = ($job['user_id'] == $user_id) ? $job['caregiver_id'] : $job['user_id'];
     
     $query = "SELECT m.*, 
               CONCAT(s.first_name, ' ', IFNULL(s.last_name, '')) as sender_name
               FROM Message m
               LEFT JOIN users s ON m.sender_id = s.id
-              WHERE m.Job_Agreement_id = :job_id
-              AND ((m.sender_id = :user1 AND m.reciever_id = :user2)
-              OR (m.sender_id = :user2 AND m.reciever_id = :user1))
+              WHERE m.job_id = :job_id
+              AND ((m.sender_id = :user1 AND m.receiver_id = :user2)
+              OR (m.sender_id = :user2 AND m.receiver_id = :user1))
               ORDER BY m.timestamp ASC";
     
     $stmt = $pdo->prepare($query);
@@ -35,7 +37,7 @@ function getJobMessages($job_id, $user_id) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Send a message
+/// Send a message
 function sendMessage($sender_id, $job_id, $content) {
     global $pdo;
 
@@ -44,7 +46,7 @@ function sendMessage($sender_id, $job_id, $content) {
 
     // Get both IDs from the Job to determine the correct receiver
     $jobQuery = "
-        SELECT owner_id, caregiver_id
+        SELECT user_id, caregiver_id
         FROM Job
         WHERE id = :job_id
         LIMIT 1
@@ -62,13 +64,20 @@ function sendMessage($sender_id, $job_id, $content) {
     }
 
     // Identify the receiver
-    $receiver_id = ($sender_id == $job['owner_id']) ? $job['caregiver_id'] : $job['owner_id'];
+    // Changed from owner_id to user_id to match the SELECT query
+    $receiver_id = ($sender_id == $job['user_id']) ? $job['caregiver_id'] : $job['user_id'];
 
-    // Insert message - using reciever_id to match your schema
+    // Validate that receiver_id is not null
+    if (empty($receiver_id)) {
+        error_log("Receiver ID is null for job_id: $job_id, sender_id: $sender_id");
+        return false;
+    }
+
+    // Insert message - using receiver_id to match your schema
     $query = "
         INSERT INTO Message 
-        (sender_id, reciever_id, content, Job_Agreement_id, Users_id, timestamp, is_read) 
-        VALUES (:sender_id, :receiver_id, :content, :job_id, :sender_id, NOW(), 'no')
+        (sender_id, receiver_id, content, job_id, timestamp, is_read) 
+        VALUES (:sender_id, :receiver_id, :content, :job_id, NOW(), 'no')
     ";
 
     $stmt = $pdo->prepare($query);
@@ -79,15 +88,15 @@ function sendMessage($sender_id, $job_id, $content) {
 
     return $stmt->execute();
 }
-
 // Mark messages as read
 function markMessagesAsRead($user_id, $job_id) {
     global $pdo;
     
+    // Fixed: receiver_id instead of reciever_id, job_id instead of Job_Agreement_id
     $query = "UPDATE Message 
               SET is_read = 'yes' 
-              WHERE reciever_id = :user_id 
-              AND Job_Agreement_id = :job_id 
+              WHERE receiver_id = :user_id 
+              AND job_id = :job_id 
               AND is_read = 'no'";
     
     $stmt = $pdo->prepare($query);
@@ -101,10 +110,11 @@ function markMessagesAsRead($user_id, $job_id) {
 function getUnreadCount($user_id, $job_id) {
     global $pdo;
     
+    // Fixed: receiver_id instead of reciever_id, job_id instead of Job_Agreement_id
     $query = "SELECT COUNT(*) as count 
               FROM Message 
-              WHERE reciever_id = :user_id 
-              AND Job_Agreement_id = :job_id 
+              WHERE receiver_id = :user_id 
+              AND job_id = :job_id 
               AND is_read = 'no'";
     
     $stmt = $pdo->prepare($query);
@@ -120,16 +130,17 @@ function getUnreadCount($user_id, $job_id) {
 function getOtherParticipant($job_id, $current_user_id) {
     global $pdo;
     
+    // Fixed: Changed owner_id to user_id to match your schema
     $query = "SELECT 
               CASE 
-                WHEN owner_id = :user_id THEN caregiver_id
-                ELSE owner_id
+                WHEN user_id = :user_id THEN caregiver_id
+                ELSE user_id
               END as other_user_id,
               CASE 
-                WHEN owner_id = :user_id THEN 
+                WHEN user_id = :user_id THEN 
                     (SELECT CONCAT(first_name, ' ', IFNULL(last_name, '')) FROM users WHERE id = caregiver_id)
                 ELSE 
-                    (SELECT CONCAT(first_name, ' ', IFNULL(last_name, '')) FROM users WHERE id = owner_id)
+                    (SELECT CONCAT(first_name, ' ', IFNULL(last_name, '')) FROM users WHERE id = user_id)
               END as other_user_name
               FROM Job 
               WHERE id = :job_id";
