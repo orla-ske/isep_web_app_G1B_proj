@@ -8,20 +8,73 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
             color: #334155; 
         }
         
-        .container { min-height: 100vh; }
+        /* Background & Animations */
+        .container { 
+            min-height: 100vh; 
+            position: relative;
+        }
+
+        .background {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(242, 242, 242, 0.8) 0%, rgba(113, 154, 252, 0.8) 50%, rgba(242, 242, 242, 0.8) 100%);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Floating paws */
+        .paw-container {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .paw {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.1;
+            animation: float-paw 20s infinite ease-in-out;
+        }
+
+        @keyframes float-paw {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
+            50% { transform: translate(30px, -30px) rotate(180deg); opacity: 0.05; }
+        }
+
+        .heart {
+            position: absolute;
+            animation: floating 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .heart-1 { top: 40px; left: 40px; font-size: 48px; opacity: 0.2; }
+        .heart-2 { top: 80px; right: 80px; font-size: 64px; opacity: 0.2; animation-delay: 1s; }
         
         /* Navigation */
         .nav {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .nav-content {
@@ -52,12 +105,12 @@
 
         .nav-link:hover,
         .nav-link.active {
-            color: #764ba2;
-            background: rgba(118, 75, 162, 0.1);
+            color: #4365ff;
+            background: rgba(67, 101, 255, 0.1);
         }
 
         .admin-badge {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4365ff, #002fff);
             color: white;
             padding: 6px 16px;
             border-radius: 20px;
@@ -67,62 +120,81 @@
 
         /* Main Content */
         .content {
+            position: relative;
+            z-index: 2;
             max-width: 1400px;
             margin: 0 auto;
             padding: 40px 20px;
         }
 
         .page-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .page-title {
             font-size: 32px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4365ff, #002fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 800;
             margin-bottom: 10px;
         }
 
         /* Filters */
         .filters {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
             align-items: center;
+            animation: scale-in 0.5s ease-out;
+        }
+
+        @keyframes scale-in {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         .filter-input,
         .filter-select {
             padding: 10px 15px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid rgba(67, 101, 255, 0.2);
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
             flex: 1;
             min-width: 200px;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .filter-input:focus,
         .filter-select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4365ff;
+            box-shadow: 0 0 0 4px rgba(67, 101, 255, 0.1);
         }
 
         .filter-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4365ff, #002fff);
             color: white;
             border: none;
             padding: 10px 24px;
@@ -130,21 +202,24 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(67, 101, 255, 0.3);
         }
 
         .filter-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(67, 101, 255, 0.4);
         }
 
         /* Table */
         .table-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             overflow-x: auto;
+            animation: scale-in 0.5s ease-out 0.1s both;
         }
 
         .data-table {
@@ -159,17 +234,21 @@
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid rgba(67, 101, 255, 0.2);
             font-weight: 700;
         }
 
         .data-table td {
             padding: 15px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .data-table tr {
+            transition: all 0.3s;
         }
 
         .data-table tr:hover {
-            background: rgba(102, 126, 234, 0.05);
+            background: rgba(67, 101, 255, 0.05);
         }
 
         .role-badge {
@@ -201,12 +280,13 @@
         }
 
         .btn-edit {
-            background: #3b82f6;
+            background: #4365ff;
             color: white;
         }
 
         .btn-edit:hover {
-            background: #2563eb;
+            background: #002fff;
+            transform: translateY(-2px);
         }
 
         .btn-delete {
@@ -216,6 +296,7 @@
 
         .btn-delete:hover {
             background: #dc2626;
+            transform: translateY(-2px);
         }
 
         /* Modal */
@@ -224,6 +305,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -231,6 +313,7 @@
 
         .modal.active {
             display: flex;
+            animation: fade-in 0.3s ease-out;
         }
 
         .modal-content {
@@ -241,12 +324,17 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+            animation: scale-in 0.3s ease-out;
         }
 
         .modal-title {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
+            background: linear-gradient(135deg, #4365ff, #002fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-group {
@@ -263,15 +351,17 @@
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid rgba(67, 101, 255, 0.2);
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4365ff;
+            box-shadow: 0 0 0 4px rgba(67, 101, 255, 0.1);
         }
 
         .form-actions {
@@ -282,23 +372,35 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4365ff, #002fff);
             color: white;
             padding: 12px 24px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(67, 101, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 101, 255, 0.4);
         }
 
         .btn-secondary {
-            background: #e2e8f0;
+            background: rgba(226, 232, 240, 0.9);
             color: #334155;
             padding: 12px 24px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(203, 213, 225, 0.9);
         }
 
         /* Message */
@@ -307,16 +409,19 @@
             border-radius: 12px;
             margin-bottom: 20px;
             font-weight: 500;
+            animation: fade-in 0.3s ease-out;
         }
 
         .message-success {
             background: #dcfce7;
             color: #166534;
+            border: 1px solid #bbf7d0;
         }
 
         .message-error {
             background: #fee2e2;
             color: #991b1b;
+            border: 1px solid #fecaca;
         }
 
         /* Pagination */
@@ -331,22 +436,35 @@
             padding: 8px 16px;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
+            color: #4365ff;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
+            border: 1px solid rgba(67, 101, 255, 0.2);
         }
 
         .page-link:hover,
         .page-link.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4365ff, #002fff);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 101, 255, 0.3);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="background"></div>
+    <div class="paw-container">
+        <div class="paw" style="top: 10%; left: 10%;">🐾</div>
+        <div class="paw" style="top: 30%; right: 20%; animation-delay: 2s;">🐾</div>
+        <div class="paw" style="top: 70%; left: 15%; animation-delay: 4s;">🐾</div>
+        <div class="paw" style="top: 50%; right: 10%; animation-delay: 1s;">🐾</div>
+    </div>
+    <div class="heart heart-1">❤️</div>
+    <div class="heart heart-2">💙</div>
+
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">

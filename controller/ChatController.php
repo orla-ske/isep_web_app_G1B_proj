@@ -69,7 +69,8 @@ function handleSendMessage($sender_id) {
     }
     
     $content = trim($_POST['content'] ?? '');
-    $job_id = $_POST['job_id'] ?? null;
+    // FIX: Get job_id from GET parameters, not POST
+    $job_id = $_GET['job_id'] ?? null;
     
     if (empty($content) || !$job_id) {
         echo json_encode(['success' => false, 'error' => 'Missing required fields']);

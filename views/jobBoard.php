@@ -16,7 +16,6 @@
         .paw { position: absolute; font-size: 60px; opacity: 0.1; animation: float-paw 20s infinite ease-in-out; }
         @keyframes float-paw { 0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; } 50% { transform: translate(30px, -30px) rotate(180deg); opacity: 0.05; } }
         
-        /* Navigation */
         .nav {
             position: sticky;
             top: 0;
@@ -214,14 +213,12 @@
                         </div>
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <!-- Text Search -->
                             <div>
                                 <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Keywords</label>
                                 <input type="text" id="filter-keyword" oninput="applyFilters()" placeholder="Search location, breed..." 
                                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
                             </div>
                             
-                            <!-- Service Type Filter -->
                             <div>
                                 <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Service Type</label>
                                 <select id="filter-service" onchange="applyFilters()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
@@ -233,7 +230,6 @@
                                 </select>
                             </div>
 
-                            <!-- Date Filter -->
                             <div>
                                 <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">Date</label>
                                 <input type="date" id="filter-date" onchange="applyFilters()" min="<?php echo date('Y-m-d'); ?>"
@@ -367,7 +363,7 @@
                                         <span class="detail-label">Start:</span>
                                         <span><?php echo date('M d, Y - g:i A', strtotime($job['start_time'])); ?></span>
                                     </div>
-                                     <div class="detail-row">
+                                    <div class="detail-row">
                                         <span class="detail-icon">🏁</span>
                                         <span class="detail-label">End:</span>
                                         <span><?php echo date('M d, Y - g:i A', strtotime($job['end_time'])); ?></span>
@@ -524,17 +520,38 @@
                                     <?php endif; ?>
                                 </div>
 
-                                <!-- Chat Integration -->
-                                <?php if ($user_type === 'pet_owner' && !empty($job['caregiver_id'])): ?>
+                                <!-- Chat Integration for Pet Owners -->
+                                <?php if ($user_type === 'pet_owner'): ?>
                                     <div class="job-actions">
-                                        <a href="../controller/ChatController.php?job_id=<?php echo $job['id']; ?>" 
-                                           class="action-btn btn-apply" 
-                                           style="text-align: center; text-decoration: none; display: block;">
-                                            💬 Message Caregiver
-                                        </a>
+                                        <?php if (!empty($job['caregiver_id']) && $job['caregiver_id'] > 0 && !($job['status'] === 'completed' || $job['status'] === 'Declined')): ?>
+                                            <a href="../controller/ChatController.php?job_id=<?php echo $job['id']; ?>" 
+                                               class="action-btn btn-apply" 
+                                               style="text-align: center; text-decoration: none; display: block;">
+                                                💬 Message Caregiver
+                                            </a>
+                                        <?php elseif ($job['status'] === 'Open'): ?>
+                                            <div style="text-align: center; padding: 10px; background: #fef3c7; color: #92400e; border-radius: 10px; font-size: 14px;">
+                                                ⏳ Waiting for caregiver assignment
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (isset($job['status']) && ($job['status'] === 'Confirmed' || $job['status'] === 'Pending')): ?>
+                                            <form method="POST" style="margin-top: 8px;">
+                                                <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
+                                                <button type="submit" 
+                                                        name="action" 
+                                                        value="cancel" 
+                                                        class="action-btn btn-decline" 
+                                                        style="width: 100%;"
+                                                        onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                                    Cancel Booking
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
 
+                                <!-- Chat Integration for Caregivers -->
                                 <?php if ($user_type === 'caregiver'): ?>
                                     <?php if (!isset($job['status']) || $job['status'] === 'Pending' || $job['status'] === null): ?>
                                         <form method="POST" class="job-actions">
@@ -558,183 +575,188 @@
                                         </div>
                                     <?php endif; ?>
                                 <?php endif; ?>
-
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php elseif ($user_type !== 'caregiver' || empty($open_jobs)): ?>
                     <div class="empty-state">
                         <h3>No Jobs Yet</h3>
-                        <p><?php echo $user_type === 'caregiver' ? 'No jobs available at the moment. Check back soon!' : 'You haven\'t booked any services yet. Create your first job!'; ?>
-                        < /p>
-</div>
-<?php endif; ?>
-</div>
-</div>
-</div>
-<script>
+                        <p><?php echo $user_type === 'caregiver' ? 'No jobs available at the moment. Check back soon!' : 'You haven\'t booked any services yet. Create your first job!'; ?></p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
 
-    function toggleJobForm() {
-        const form = document.getElementById('jobForm');
-        const btn = document.getElementById('toggleBtn');
-        
-        if (form.classList.contains('hidden')) {
-            form.classList.remove('hidden');
-            btn.textContent = '✕ Cancel';
-            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-            form.classList.add('hidden');
-            btn.textContent = '+ Create New Job';
-        }
-    }
+    <!-- Pet Modal -->
+    <div id="petModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Add New Pet</h2>
+            <form id="petForm" onsubmit="submitPet(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Name *</label>
+                        <input type="text" name="pet_name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Breed *</label>
+                        <input type="text" name="pet_breed" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Age *</label>
+                        <input type="number" name="pet_age" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender *</label>
+                        <select name="pet_gender" class="form-select" required>
+                            <option value="">Choose...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Pet</button>
+                    <button type="button" onclick="closePetModal()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date().toISOString().split('T')[0];
-        const startDateInput = document.querySelector('input[name="start_date"]');
-        const endDateInput = document.querySelector('input[name="end_date"]');
-        
-        if (startDateInput) {
-            startDateInput.setAttribute('min', today);
-        }
-        
-        if (endDateInput) {
-            endDateInput.setAttribute('min', today);
-        }
-        
-        if (startDateInput) {
-            startDateInput.addEventListener('change', function() {
-                if (endDateInput) {
-                    endDateInput.setAttribute('min', this.value);
-                }
-            });
-        }
-    });
-
-    function openPetModal() {
-    document.getElementById('petModal').classList.remove('hidden');
-}
-
-function closePetModal() {
-    document.getElementById('petModal').classList.add('hidden');
-    document.getElementById('petForm').reset();
-}
-
-async function submitPet(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    formData.append('add_pet_ajax', '1');
-    
-    try {
-        const response = await fetch('JobController.php', { method: 'POST', body: formData });
-        const result = await response.json();
-        
-        if (result.success) {
-            const select = document.querySelector('select[name="pet_id"]');
-            const option = new Option(result.pet_name + ' (' + result.pet_breed + ')', result.pet_id, true, true);
-            select.add(option);
-            closePetModal();
-        } else {
-            alert(result.message || 'Failed to add pet');
-        }
-    } catch (error) {
-    console.error('详细错误:', error);
-    alert('Error: ' + error.message); 
-}
-                }
-
-
-    function applyFilters() {
-        const keyword = document.getElementById('filter-keyword').value.toLowerCase();
-        const service = document.getElementById('filter-service').value;
-        const selectedDateStr = document.getElementById('filter-date').value;
-
-        const cards = document.querySelectorAll('.job-card[data-service]');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); 
-
-        cards.forEach(card => {
-            let show = true;
+    <script>
+        function toggleJobForm() {
+            const form = document.getElementById('jobForm');
+            const btn = document.getElementById('toggleBtn');
             
-
-            if (service !== 'all' && card.dataset.service !== service) {
-                show = false;
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+                btn.textContent = '✕ Cancel';
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                form.classList.add('hidden');
+                btn.textContent = '+ Create New Job';
             }
+        }
 
-            if (selectedDateStr && card.dataset.date !== selectedDateStr) {
-                show = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const startDateInput = document.querySelector('input[name="start_date"]');
+            const endDateInput = document.querySelector('input[name="end_date"]');
+            
+            if (startDateInput) {
+                startDateInput.setAttribute('min', today);
             }
+            
+            if (endDateInput) {
+                endDateInput.setAttribute('min', today);
+            }
+            
+            if (startDateInput) {
+                startDateInput.addEventListener('change', function() {
+                    if (endDateInput) {
+                        endDateInput.setAttribute('min', this.value);
+                    }
+                });
+            }
+        });
 
-            if (keyword) {
-                const location = card.dataset.location || '';
-                const breed = card.dataset.breed || '';
-                if (!location.includes(keyword) && !breed.includes(keyword)) {
+        function openPetModal() {
+            document.getElementById('petModal').classList.remove('hidden');
+        }
+
+        function closePetModal() {
+            document.getElementById('petModal').classList.add('hidden');
+            document.getElementById('petForm').reset();
+        }
+
+        async function submitPet(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('add_pet_ajax', '1');
+            
+            try {
+                const response = await fetch('JobController.php', { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = document.querySelector('select[name="pet_id"]');
+                    const option = new Option(result.pet_name + ' (' + result.pet_breed + ')', result.pet_id, true, true);
+                    select.add(option);
+                    closePetModal();
+                } else {
+                    alert(result.message || 'Failed to add pet');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message); 
+            }
+        }
+
+        function applyFilters() {
+            const keyword = document.getElementById('filter-keyword').value.toLowerCase();
+            const service = document.getElementById('filter-service').value;
+            const selectedDateStr = document.getElementById('filter-date').value;
+
+            const cards = document.querySelectorAll('.job-card[data-service]');
+
+            cards.forEach(card => {
+                let show = true;
+
+                if (service !== 'all' && card.dataset.service !== service) {
                     show = false;
                 }
-            }
 
-            card.style.display = show ? 'block' : 'none';
-        });
-    }
-
-    // --- OVERLAP CHECK LOGIC ---
-    // Inject PHP data into JS
-    const assignedJobs = <?php echo json_encode($user_type === 'caregiver' ? $jobs : []); ?>;
-
-    function checkOverlap(event, newStartStr, newEndStr) {
-        const newStart = new Date(newStartStr);
-        const newEnd = new Date(newEndStr);
-
-        // Find error container inside the submitted form
-        const form = event.target;
-        const errorDiv = form.querySelector('.overlap-error');
-        if (errorDiv) {
-            errorDiv.style.display = 'none';
-            errorDiv.innerText = '';
-        }
-
-        for (const job of assignedJobs) {
-            // Skip jobs that are not confirmed/pending (though usually assignedJobs contains only those)
-            if (job.status === 'Completed' || job.status === 'Declined') continue;
-
-            const currentStart = new Date(job.start_time);
-            // If end_time is missing from DB for some reason, assume 1 hour duration
-            const currentEnd = job.end_time ? new Date(job.end_time) : new Date(currentStart.getTime() + 60 * 60 * 1000);
-
-            // Check overlap
-            if (newStart < currentEnd && newEnd > currentStart) {
-                event.preventDefault();
-                
-                if (errorDiv) {
-                    const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const msg = `⚠️ Time Conflict! You are busy from ${formatTime(currentStart)} to ${formatTime(currentEnd)}.`;
-                    errorDiv.innerText = msg;
-                    errorDiv.style.display = 'block';
+                if (selectedDateStr && card.dataset.date !== selectedDateStr) {
+                    show = false;
                 }
-                
-                return false;
-            }
+
+                if (keyword) {
+                    const location = card.dataset.location || '';
+                    const breed = card.dataset.breed || '';
+                    if (!location.includes(keyword) && !breed.includes(keyword)) {
+                        show = false;
+                    }
+                }
+
+                card.style.display = show ? 'block' : 'none';
+            });
         }
-        
-        // No overlap
-        return true;
-    }
-</script><!-- Pet Modal -->
-<div id="petModal" class="modal hidden">
-    <div class="modal-content">
-        <h2>Add New Pet</h2>
-        <form id="petForm" onsubmit="submitPet(event)">
-            <div class="form-grid">
-                <div class="form-group"><label class="form-label">Name *</label><input type="text" name="pet_name" class="form-input" required></div>
-                <div class="form-group"><label class="form-label">Breed *</label><input type="text" name="pet_breed" class="form-input" required></div>
-                <div class="form-group"><label class="form-label">Age *</label><input type="number" name="pet_age" class="form-input" required></div>
-                <div class="form-group"><label class="form-label">Gender *</label><select name="pet_gender" class="form-select" required><option value="">Choose...</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Add Pet</button>
-                <button type="button" onclick="closePetModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
+
+        const assignedJobs = <?php echo json_encode($user_type === 'caregiver' ? $jobs : []); ?>;
+
+        function checkOverlap(event, newStartStr, newEndStr) {
+            const newStart = new Date(newStartStr);
+            const newEnd = new Date(newEndStr);
+
+            const form = event.target;
+            const errorDiv = form.querySelector('.overlap-error');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.innerText = '';
+            }
+
+            for (const job of assignedJobs) {
+                if (job.status === 'Completed' || job.status === 'Declined') continue;
+
+                const currentStart = new Date(job.start_time);
+                const currentEnd = job.end_time ? new Date(job.end_time) : new Date(currentStart.getTime() + 60 * 60 * 1000);
+
+                if (newStart < currentEnd && newEnd > currentStart) {
+                    event.preventDefault();
+                    
+                    if (errorDiv) {
+                        const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const msg = `⚠️ Time Conflict! You are busy from ${formatTime(currentStart)} to ${formatTime(currentEnd)}.`;
+                        errorDiv.innerText = msg;
+                        errorDiv.style.display = 'block';
+                    }
+                    
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+    </script>
 </body>
 </html>
