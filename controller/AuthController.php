@@ -4,24 +4,34 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 session_start();
-header('Content-Type: application/json'); // 告诉前端返回的是 JSON
+header('Content-Type: application/json');
 
-// 引入模型 (请确保路径正确，如果是 models 文件夹请自行修改为 ../models/users.php)
+// 引入模型
 require_once '../model/users.php';
+
+// 引入 PHPMailer (放在这里方便复用)
+require_once '../model/PHPMailer/Exception.php';
+require_once '../model/PHPMailer/PHPMailer.php';
+require_once '../model/PHPMailer/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 $response = ['status' => 'error', 'message' => 'An unexpected error occurred.'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 获取 action，如果没有则为空
     $action = $_POST['action'] ?? '';
 
-    // 🔥 关键修复：这里使用 ?? '' 防止在 reset_password 时报错 "Undefined array key email"
+    // 获取并清洗 Email
     $rawEmail = $_POST['email'] ?? '';
     $email = filter_var(trim($rawEmail), FILTER_SANITIZE_EMAIL);
 
-    // 获取密码，如果没有则为空
+    // 获取密码
     $password = $_POST['password'] ?? '';
+
+    // 获取验证码 (新增)
+    $code = $_POST['code'] ?? '';
 
     // --- LOGIN LOGIC ---
     if ($action === 'login') {
@@ -35,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($user && verifyPassword($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
-            $_SESSION['firstname'] = $user['first_name']; // 确保数据库字段名是 first_name
+            $_SESSION['firstname'] = $user['first_name'];
             $_SESSION['role'] = $user['role'];
 
             echo json_encode(['status' => 'success', 'message' => 'Login successful! Redirecting...']);
@@ -48,23 +58,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     elseif ($action === 'signup') {
         $firstname = trim($_POST['firstName'] ?? '');
         $lastname = trim($_POST['lastName'] ?? '');
-        // $email 已经在上面获取了
-        // $password 已经在上面获取了
-        $role = $_POST['role'] ?? 'pet_owner'; // 默认角色
+        $role = $_POST['role'] ?? 'pet_owner';
 
-        // 验证必填项
         if (empty($firstname) || empty($lastname) || empty($email) || empty($password)) {
             echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
             exit;
         }
 
-        // check if user exists
         if (getUserByEmail($email)) {
             echo json_encode(['status' => 'error', 'message' => 'Email already registered.']);
             exit;
         }
 
-        // Attempt to create user
         if (createUser($firstname, $lastname, $email, $password, $role)) {
             $newUser = getUserByEmail($email);
             $_SESSION['user_id'] = $newUser['id'];
@@ -77,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // --- FORGOT PASSWORD ---
+    // --- FORGOT PASSWORD (发送验证码) ---
     elseif ($action === 'forgot_password') {
         if (empty($email)) {
             echo json_encode(['status' => 'error', 'message' => 'Please enter your email address.']);
@@ -90,75 +95,84 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
 
-        $token = bin2hex(random_bytes(16));
+        // 🔥 修改 1: 生成 6 位随机数字，而不是长 Token
+        $verificationCode = (string)rand(100000, 999999);
 
-        if (setPasswordResetToken($email, $token)) {
-            // 1. 生成链接
-            $host = $_SERVER['HTTP_HOST'];
-            $currentDir = dirname($_SERVER['PHP_SELF']);
-            $rootDir = dirname($currentDir);
-            $resetLink = "http://" . $host . $rootDir . "/views/reset_password.php?token=" . $token;
+        // 存入数据库 (Model 会自动 hash 它)
+        if (setPasswordResetToken($email, $verificationCode)) {
 
-            // 2. 引入 PHPMailer (注意路径要对！)
-            require_once '../model/PHPMailer/Exception.php';
-            require_once '../model/PHPMailer/PHPMailer.php';
-            require_once '../model/PHPMailer/SMTP.php';
-
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail = new PHPMailer(true);
 
             try {
                 // 配置服务器
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'vc382936@gmail.com'; // 🟢 改这里
-                $mail->Password   = 'gdwymyjdtwcknpvu';     // 🟢 改这里
+
+                // ⚠️ 建议把这里的密码移到配置文件中，不要硬编码
+                $mail->Username   = 'vc382936@gmail.com';
+                $mail->Password   = '';
+
                 $mail->SMTPSecure = 'tls';
                 $mail->Port       = 587;
 
-                // 收发件人
-                $mail->setFrom('vc382936@gmail.com', 'petstride'); // 🟢 改这里
+                $mail->setFrom('vc382936@gmail.com', 'PetStride Security');
                 $mail->addAddress($email);
 
-                // 内容
+                // 🔥 修改 2: 发送验证码邮件
                 $mail->isHTML(true);
-                $mail->Subject = 'Reset Password - PetStride';
-                $mail->Body    = "Click here to reset: <a href='$resetLink'>$resetLink</a>";
+                $mail->Subject = 'Password Reset Code - PetStride';
+                $mail->Body    = "
+                    <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+                        <h2>Password Reset Request</h2>
+                        <p>Your verification code is:</p>
+                        <h1 style='color: #4A9FD8; letter-spacing: 5px; font-size: 32px;'>$verificationCode</h1>
+                        <p>This code expires in 1 hour.</p>
+                        <p>If you did not request this, please ignore this email.</p>
+                    </div>
+                ";
+                $mail->AltBody = "Your verification code is: $verificationCode";
 
                 $mail->send();
 
-                echo json_encode(['status' => 'success', 'message' => 'Email sent! Please check your inbox.']);
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Verification code sent to your email!',
+                    'redirect_email' => $email // 把邮箱传回前端，方便带到下一个页面
+                ]);
             } catch (Exception $e) {
-                // 发送失败返回错误
                 echo json_encode(['status' => 'error', 'message' => 'Mail Error: ' . $mail->ErrorInfo]);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Database error.']);
         }
     }
-    // --- RESET PASSWORD (执行重置) ---
-    elseif ($action === 'reset_password') {
-        // 这里不需要 email，所以上面那个修复至关重要
-        $token = $_POST['token'] ?? '';
-        $newPassword = $_POST['password'] ?? '';
 
-        if (empty($token) || empty($newPassword)) {
-            echo json_encode(['status' => 'error', 'message' => 'Missing token or password.']);
+    // --- RESET PASSWORD (验证码 + 新密码) ---
+    elseif ($action === 'reset_password') {
+        // 🔥 修改 3: 这里需要 Email + Code + Password
+        // $email 已经在最上面获取了
+        // $code 已经在最上面获取了
+        // $password 已经在最上面获取了
+
+        if (empty($email) || empty($code) || empty($password)) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing email, code or password.']);
             exit;
         }
 
-        // verify Token
-        $user = getUserByResetToken($token);
+        // 验证 邮箱 + 验证码
+        // ⚠️ 确保你的 models/users.php 里已经添加了 verifyUserByCode 函数！
+        $user = verifyUserByCode($email, $code);
 
         if ($user) {
-            // update password
-            if (resetUserPassword($user['id'], $newPassword)) {
-                echo json_encode(['status' => 'success', 'message' => 'Password has been reset! Please login.']);
+            // 更新密码
+            if (resetUserPassword($user['id'], $password)) {
+                echo json_encode(['status' => 'success', 'message' => 'Password reset successful! Please login.']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Failed to update password.']);
             }
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid or expired token.']);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid or expired verification code.']);
         }
     }
 
