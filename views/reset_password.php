@@ -10,22 +10,38 @@
 <div class="container">
   <div class="background"></div>
   <div class="content">
-    <div class="card">
-      <div class="welcome">
-        <h1>New Password</h1>
-        <p>Please enter your new password.</p>
+      <div class="card">
+          <div class="welcome">
+              <h1>Verify Code</h1>
+              <p>Enter the 6-digit code sent to your email.</p>
+          </div>
+
+          <form id="reset-form">
+              <!-- 邮箱字段 (可以设为 readonly 只读，防止用户改错) -->
+              <div class="form-group">
+                  <label class="label">Email</label>
+                  <!-- email 从 URL 参数里取，例如 reset_password.php?email=abc@gmail.com -->
+                  <input type="email" name="email" class="input"
+                         value="<?php echo htmlspecialchars($_GET['email'] ?? ''); ?>"
+                         readonly style="background-color: #f0f0f0;">
+              </div>
+
+              <!-- 验证码字段 -->
+              <div class="form-group">
+                  <label class="label">Verification Code</label>
+                  <input type="text" name="code" class="input" placeholder="123456" maxlength="6" required>
+              </div>
+
+              <!-- 新密码字段 -->
+              <div class="form-group">
+                  <label class="label">New Password</label>
+                  <input type="password" name="password" class="input" placeholder="New Password" required>
+              </div>
+
+              <button type="submit" class="submit-btn">Reset Password</button>
+          </form>
       </div>
 
-      <form id="reset-form">
-        <!-- 隐藏字段：Token 从 URL 获取 -->
-        <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>">
-
-        <div class="form-group">
-          <label class="label">New Password</label>
-          <input type="password" name="password" class="input" placeholder="••••••••" required>
-        </div>
-
-        <button type="submit" class="submit-btn">Update Password</button>
       </form>
     </div>
   </div>
@@ -43,13 +59,13 @@
 
       if (data.status === 'success') {
         alert(data.message);
-        window.location.href = 'login.html'; // 重置成功回登录页
+        window.location.href = '../login.html'; // 重置成功回登录页
       } else {
         alert(data.message);
       }
     } catch (err) {
         console.error("🔥 捕获到的错误详情:", err); // 这行能让你在 Console 看到错误！
-        console.log("尝试访问的地址:", '../controllers/AuthController.php'); // 打印路径方便检查
+        console.log("尝试访问的地址:", '../controller/AuthController.php'); // 打印路径方便检查
         alert('System error: ' + err.message); // 把错误信息弹出来
     }
   });
