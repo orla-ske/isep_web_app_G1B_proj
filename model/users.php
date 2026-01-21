@@ -119,6 +119,29 @@ function updateUserPassword($id, $new_password) {
     return $stmt->execute();
 }
 
+function verifyUserByCode($email, $code) {
+    global $pdo;
+    $codeHash = hash('sha256', $code);
+
+    // 获取当前 PHP 时间
+    $currentProps = date('Y-m-d H:i:s');
+
+    // 我们把当前时间传进去比较，而不是用 SQL 的 NOW()
+    $sql = "SELECT * FROM users 
+            WHERE email = :email 
+            AND reset_token_hash = :code_hash 
+            AND reset_token_expires_at > :current_time";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':email' => $email,
+        ':code_hash' => $codeHash,
+        ':current_time' => $currentProps
+    ]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 function updateProfilePicture($id, $profile_picture_url) {
     global $pdo;
     
